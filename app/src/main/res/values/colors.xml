@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryColor">#546e7a</color>
+    <color name="primaryLightColor">#819ca9</color>
+    <color name="primaryDarkColor">#29434e</color>
+    <color name="primaryTextColor">#ffffff</color>
+
+    <color name="secondaryColor">#4caf50</color>
+    <color name="secondaryLightColor">#80e27e</color>
+    <color name="secondaryDarkColor">#087f23</color>
+    <color name="secondaryTextColor">#000000</color>
+
+    <color name="introBluetooth">#039be5</color>
+    <color name="introLocation">#e53935</color>
+    <color name="introStorage">#fb8c00</color>
+</resources>
