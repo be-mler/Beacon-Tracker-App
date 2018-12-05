@@ -1,6 +1,9 @@
 package saarland.cispa.bletrackerlib;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -11,9 +14,9 @@ import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import org.altbeacon.beacon.startup.BootstrapNotifier;
 import org.altbeacon.beacon.startup.RegionBootstrap;
 
-public class BeaconBackgroundService implements BootstrapNotifier {
+public final class BeaconService implements BootstrapNotifier {
 
-    protected static final String TAG = "BeaconBackgroundService";
+    private static final String TAG = "BeaconService";
     private BeaconManager beaconManager;
     private Context context;
     private final Region region = new Region("AllBeaconsRegion", null, null, null);
@@ -24,23 +27,22 @@ public class BeaconBackgroundService implements BootstrapNotifier {
 
 
     /**
-     * Service which operates in background
-     * @param context the app context
-     * @param stateNotifier the stateNotifier callback
-     * @param saveBattery save battery yes/no. reduces battery consumption but also has lower refresh rate in background then
+     * Creates a service which operates in background
+     * Do not change the order of the calls in this constructor without knowing what you are doing!
+     * @param context app context
+     * @param stateNotifier notification callback
      */
-    public BeaconBackgroundService(Context context, BeaconStateNotifier stateNotifier, boolean saveBattery) {
+    BeaconService(Context context, BeaconStateNotifier stateNotifier) {
         this.context = context;
         this.stateNotifier = stateNotifier;
         this.rangeNotifier = new RangeNotifierImpl(stateNotifier);
 
-        if (saveBattery) {
-            backgroundPowerSaver = new BackgroundPowerSaver(context);
-        } else {
-            backgroundPowerSaver = null;
-        }
-
         beaconManager = BeaconManager.getInstanceForApplication(context);
+
+        backgroundPowerSaver = new BackgroundPowerSaver(context);
+
+        beaconManager.addRangeNotifier(rangeNotifier);
+
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_URL_LAYOUT));
@@ -49,6 +51,44 @@ public class BeaconBackgroundService implements BootstrapNotifier {
 
         regionBootstrap = new RegionBootstrap(this, region);
     }
+
+    /**
+     * Creates a service which also operates in background but will never go asleep
+     * Do not change the order of the calls in this constructor without knowing what you are doing!
+     * @param context app context
+     * @param stateNotifier notification callback
+     * @param notificationIcon icon for permanent notification
+     * @param notificationText text for permanent notification
+     */
+    BeaconService(Context context, BeaconStateNotifier stateNotifier, int notificationIcon, String notificationText) {
+        this.context = context;
+        this.stateNotifier = stateNotifier;
+        this.rangeNotifier = new RangeNotifierImpl(stateNotifier);
+
+        beaconManager = BeaconManager.getInstanceForApplication(context);
+
+        Notification.Builder builder = new Notification.Builder(context);
+        builder.setSmallIcon(notificationIcon);
+        builder.setContentTitle(notificationText);
+        Intent intent = new Intent(context, context.getApplicationContext().getClass());
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+        beaconManager.enableForegroundServiceScanning(builder.build(), 0);
+        beaconManager.setEnableScheduledScanJobs(false);
+
+        backgroundPowerSaver = null;
+
+        beaconManager.addRangeNotifier(rangeNotifier);
+
+        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
+        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
+        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_URL_LAYOUT));
+        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.ALTBEACON_LAYOUT));
+        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.URI_BEACON_LAYOUT));
+
+        regionBootstrap = new RegionBootstrap(this, region);
+    }
+
 
     /**
      * Called by the BeaconManager to get the context of Service or Activity.
@@ -64,7 +104,7 @@ public class BeaconBackgroundService implements BootstrapNotifier {
     /**
      * This method is called if a beacon enters the region and send's onBeaconNearby callback to the app
      * This callback can be used to show a notification etc.
-     * @param region
+     * @param region the beacons to look for
      */
 
     @Override
@@ -75,13 +115,12 @@ public class BeaconBackgroundService implements BootstrapNotifier {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        beaconManager.addRangeNotifier(rangeNotifier);
         stateNotifier.onBeaconNearby();
     }
 
     /**
      * This method is called if there all no beacons seen anymore
-     * @param region
+     * @param region the beacons to look for
      */
 
     @Override
@@ -92,14 +131,12 @@ public class BeaconBackgroundService implements BootstrapNotifier {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        beaconManager.removeRangeNotifier(rangeNotifier);
-
     }
 
     /**
      * This method is called if beacons switching state from seen/not seen
-     * @param state
-     * @param region
+     * @param state the state
+     * @param region the beacons to look for
      */
     @Override
     public void didDetermineStateForRegion(int state, Region region) {

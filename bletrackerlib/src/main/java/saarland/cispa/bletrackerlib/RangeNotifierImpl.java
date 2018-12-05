@@ -10,15 +10,15 @@ import org.altbeacon.beacon.Region;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import saarland.cispa.bletrackerlib.types.SimpleBeacon;
+import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
 public class RangeNotifierImpl implements RangeNotifier {
 
-    protected static final String TAG = "RangeNotifierImpl";
+    private static final String TAG = "RangeNotifierImpl";
     private final BeaconStateNotifier stateNotifier;
 
 
-    public RangeNotifierImpl(BeaconStateNotifier stateNotifier) {
+    RangeNotifierImpl(BeaconStateNotifier stateNotifier) {
         this.stateNotifier = stateNotifier;
     }
 
@@ -34,7 +34,12 @@ public class RangeNotifierImpl implements RangeNotifier {
             //if (beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x00) {
             // This is a Eddystone-UID frame
             Identifier namespaceId = beacon.getId1();
-            Identifier instanceId = beacon.getId2();
+            Identifier instanceId = null;
+            try {
+                 instanceId = beacon.getId2();
+            } catch (Exception e) {
+                //TODO
+            }
             Log.d(TAG, "I see a beacon transmitting namespace id: "+namespaceId+
                     " and instance id: "+instanceId+
                     " approximately "+beacon.getDistance()+" meters away.");

@@ -2,7 +2,7 @@ package saarland.cispa.bletrackerlib;
 
 import java.util.ArrayList;
 
-import saarland.cispa.bletrackerlib.types.SimpleBeacon;
+import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
 public interface BeaconStateNotifier {
     /**
@@ -10,18 +10,18 @@ public interface BeaconStateNotifier {
      * Can be used to display live updates inside the app
      * @param beacons the nearby beacons
      */
-    public void onUpdate(ArrayList<SimpleBeacon> beacons);
+    void onUpdate(ArrayList<SimpleBeacon> beacons);
 
     /**
      * Callback which get's fired if there is a beacon found nearby
      * Can be used to show notifications etc.
      */
-    public void onBeaconNearby();
+    void onBeaconNearby();
 
     /**
      * Callback if beacon is ready to send.
      * This get's fired if we have good location and best distance to the beacon
      * @param beacon the beacon
      */
-    public void onReadyToSend(SimpleBeacon beacon);
+    void onReadyToSend(SimpleBeacon beacon);
 }

@@ -6,4 +6,7 @@
     <string name="nav_header_subtitle">Developed by CISPA</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="notification_channel_name">Default Channel</string>
+    <string name="notification_channel_description">Default Channel</string>
+
 </resources>

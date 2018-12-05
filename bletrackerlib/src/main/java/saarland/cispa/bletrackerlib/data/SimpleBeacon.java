@@ -1,10 +1,10 @@
-package saarland.cispa.bletrackerlib.types;
+package saarland.cispa.bletrackerlib.data;
 
 public class SimpleBeacon {
 
-    float longitude;
-    float latitude;
-    String uuid;
+    private float longitude;
+    private float latitude;
+    private String uuid;
     //TODO: This is a dummy class at the moment
 
     /**
