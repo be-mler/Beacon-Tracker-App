@@ -3,6 +3,7 @@ package saarland.cispa.trackblebeacons;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -31,6 +32,14 @@ import saarland.cispa.bletrackerlib.BeaconStateNotifier;
 import saarland.cispa.bletrackerlib.ServiceAlreadyExistsException;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
+
+import org.osmdroid.api.IMapController;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -38,6 +47,8 @@ public class MainActivity extends AppCompatActivity
     private BleTrackerLib bleTrackerLib;
     private boolean haveDetectedBeaconsSinceBoot = false;
     private String DEFAULT_NOTIFICATION_CHANNEL_ID = "DEFAULT_NOTIFICATION_CHANNEL_ID";
+
+    MapView map = null;
 
     private void showIntroAtFirstStart() {
         //  Declare a new thread to do a preference check
@@ -87,6 +98,10 @@ public class MainActivity extends AppCompatActivity
 
         showIntroAtFirstStart();
 
+        /*Next 2 Lines recommended by OsmDroid  */
+        Context ctx = getApplicationContext();
+        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -108,6 +123,12 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //Initialize map and set default location
+        initMap();
+
+
+
 
         // TODO: Respect settings for operation mode
         bleTrackerLib = new BleTrackerLib(this, new BeaconStateNotifier() {
@@ -147,6 +168,37 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+    private void initMap()
+    {
+        map = (MapView) findViewById(R.id.map);
+        map.setTileSource(TileSourceFactory.MAPNIK);
+
+        // Used in DOC but seems to be deprecated and no longer needed
+        // map.setBuiltInZoomControls(true);
+        map.setMultiTouchControls(true);
+        IMapController mapController = map.getController();
+
+        //Building level zoom
+        mapController.setZoom(19.0);
+
+        //Lets start at CISPA
+        GeoPoint startPoint = new GeoPoint(49.25950, 7.05168);
+        mapController.setCenter(startPoint);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        map.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        map.onResume();
+    }
 
     private void sendNotification() {
         Intent intent = new Intent(this, MainActivity.class);
