@@ -18,6 +18,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -27,6 +28,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import saarland.cispa.bletrackerlib.BleTrackerAPI;
 import saarland.cispa.bletrackerlib.BleTrackerLib;
 import saarland.cispa.bletrackerlib.BeaconStateNotifier;
 import saarland.cispa.bletrackerlib.ServiceAlreadyExistsException;
@@ -38,10 +40,13 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
+import org.osmdroid.views.overlay.OverlayItem;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener ,ItemizedIconOverlay.OnItemGestureListener {
 
     private static final String TAG = "MainActivity";
     private BleTrackerLib bleTrackerLib;
@@ -49,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     private String DEFAULT_NOTIFICATION_CHANNEL_ID = "DEFAULT_NOTIFICATION_CHANNEL_ID";
 
     MapView map = null;
+    ItemizedOverlayWithFocus<OverlayItem> beaconsOverlay;
 
     private void showIntroAtFirstStart() {
         //  Declare a new thread to do a preference check
@@ -174,8 +180,8 @@ public class MainActivity extends AppCompatActivity
         map = (MapView) findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
 
-        // Used in DOC but seems to be deprecated and no longer needed
-        // map.setBuiltInZoomControls(true);
+        // Used in DOC but seems to be deprecated
+         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
 
@@ -186,6 +192,61 @@ public class MainActivity extends AppCompatActivity
         GeoPoint startPoint = new GeoPoint(49.25950, 7.05168);
         mapController.setCenter(startPoint);
 
+        //Initializing Beacon Overlay
+        //TODO: Make fancy icon + circle of range
+        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
+        //Add Default marker, CISPA (NOT A BEACON)
+        items.add(new OverlayItem("Cispa", "Helmholtz Center for Information Security, ", new GeoPoint(49.25950, 7.05168)));
+        beaconsOverlay= new ItemizedOverlayWithFocus<OverlayItem>(items,this,this);
+
+        beaconsOverlay.setFocusItemsOnTap(true);
+
+
+        map.getOverlays().add(beaconsOverlay);
+        loadBeacons();
+
+    }
+
+
+    private void addBeaconToOverlay(SimpleBeacon beacon)
+    {
+
+        beaconsOverlay.addItem(new OverlayItem("Beacon", beacon.getUuid(), new GeoPoint(beacon.getLocationLat(), beacon.getLocationLong())));
+
+    }
+
+    private void loadBeacons()
+    {
+        BleTrackerAPI api = new BleTrackerAPI("http://192.168.122.21:5000/api/beacon",this){
+            @Override
+            public void onBeaconReceive(SimpleBeacon[] beacons) {
+                for (SimpleBeacon beacon:beacons
+                     ) {
+                    addBeaconToOverlay(beacon);
+
+                }
+            }
+            @Override
+            public void onBeaconReceiveError() {
+                Log.d("API","Failed to reciever beacons from api");
+            }
+        };
+        api.RequestBeacons();
+
+
+    }
+
+
+    @Override
+    public boolean onItemSingleTapUp(int index, Object item) {
+        //Show strenght of beacon or something
+        return true;
+    }
+
+    @Override
+    public boolean onItemLongPress(int index, Object item) {
+        //Show detailed information?
+        return false;
     }
 
     @Override
