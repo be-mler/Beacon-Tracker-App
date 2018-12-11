@@ -6,12 +6,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -37,6 +40,9 @@ import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
@@ -44,6 +50,8 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 
 public class MainActivity extends AppCompatActivity
@@ -53,9 +61,13 @@ public class MainActivity extends AppCompatActivity
     private BleTracker bleTracker;
     private boolean haveDetectedBeaconsSinceBoot = false;
     private String DEFAULT_NOTIFICATION_CHANNEL_ID = "DEFAULT_NOTIFICATION_CHANNEL_ID";
+    private final float DEFAULT_ZOOM_LEVEL = 20.0F;
+    private final String FIRST_START_PROPERTY_KEY = "firstStart";
 
     MapView map = null;
     ItemizedOverlayWithFocus<OverlayItem> beaconsOverlay;
+    private MyLocationNewOverlay myLocationOverlay;
+    private ImageButton btnFollowMe;
 
     private void showIntroAtFirstStart() {
         //  Declare a new thread to do a preference check
@@ -67,7 +79,7 @@ public class MainActivity extends AppCompatActivity
                         .getDefaultSharedPreferences(getBaseContext());
 
                 //  Create a new boolean and preference and set it to true
-                boolean isFirstStart = getPrefs.getBoolean("firstStart", true);
+                boolean isFirstStart = getPrefs.getBoolean(FIRST_START_PROPERTY_KEY, true);
 
                 //  If the activity has never started before...
                 if (isFirstStart) {
@@ -179,15 +191,62 @@ public class MainActivity extends AppCompatActivity
         map.setTileSource(TileSourceFactory.MAPNIK);
 
         map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.ALWAYS);
+
         map.setMultiTouchControls(true);
-        IMapController mapController = map.getController();
 
         //Building level zoom
-        mapController.setZoom(19.0);
+        final IMapController mapController = map.getController();
+        mapController.setZoom(DEFAULT_ZOOM_LEVEL);
 
-        //Lets start at CISPA
-        GeoPoint startPoint = new GeoPoint(49.25950, 7.05168);
-        mapController.setCenter(startPoint);
+        GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(getApplicationContext());
+        locationProvider.addLocationSource(LocationManager.GPS_PROVIDER);
+        locationProvider.addLocationSource(LocationManager.NETWORK_PROVIDER);
+        myLocationOverlay = new MyLocationNewOverlay(locationProvider, map);
+        myLocationOverlay.setDrawAccuracyEnabled(true);
+
+        myLocationOverlay.enableFollowLocation();
+        map.getOverlays().add(myLocationOverlay);
+
+        // Button to enable follow me
+        btnFollowMe = findViewById(R.id.ic_gps_fixed);
+        btnFollowMe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "btnFollowMe clicked");
+                if (!myLocationOverlay.isFollowLocationEnabled()) {
+                    myLocationOverlay.enableFollowLocation();
+                    mapController.setZoom(DEFAULT_ZOOM_LEVEL);
+                    btnFollowMe.setImageResource(R.drawable.ic_gps_fixed);
+                } else {
+                    myLocationOverlay.disableFollowLocation();
+                    btnFollowMe.setImageResource(R.drawable.ic_gps_not_fixed);
+                }
+            }
+        });
+
+        // Set Image of btnFollowMe to the corresponding icon if there is a zoom or a scroll event
+        // Zoom and scroll by multitouch disables location following
+        map.addMapListener(new MapListener() {
+            @Override
+            public boolean onScroll(ScrollEvent event) {
+                if (!myLocationOverlay.isFollowLocationEnabled()) {
+                    btnFollowMe.setImageResource(R.drawable.ic_gps_not_fixed);
+                } else {
+                    btnFollowMe.setImageResource(R.drawable.ic_gps_fixed);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onZoom(ZoomEvent event) {
+                if (!myLocationOverlay.isFollowLocationEnabled()) {
+                    btnFollowMe.setImageResource(R.drawable.ic_gps_not_fixed);
+                } else {
+                    btnFollowMe.setImageResource(R.drawable.ic_gps_fixed);
+                }
+                return true;
+            }
+        });
 
         //Initializing Beacon Overlay
         //TODO: Make fancy icon + circle of range
@@ -198,8 +257,8 @@ public class MainActivity extends AppCompatActivity
 
         beaconsOverlay.setFocusItemsOnTap(true);
 
-
         map.getOverlays().add(beaconsOverlay);
+
         loadBeacons();
 
     }
@@ -240,15 +299,19 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+
+
     @Override
     protected void onPause() {
         super.onPause();
+        myLocationOverlay.disableMyLocation();
         map.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        myLocationOverlay.enableMyLocation();
         map.onResume();
     }
 

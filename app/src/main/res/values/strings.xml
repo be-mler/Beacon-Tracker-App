@@ -8,5 +8,6 @@
     <string name="action_settings">Settings</string>
     <string name="notification_channel_name">Default Channel</string>
     <string name="notification_channel_description">Default Channel</string>
+    <string name="btn_gps_fixed">Center map to my position</string>
 
 </resources>
