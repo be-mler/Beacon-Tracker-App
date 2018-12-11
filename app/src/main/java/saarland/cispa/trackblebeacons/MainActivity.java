@@ -18,7 +18,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -28,9 +27,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import saarland.cispa.bletrackerlib.BleTrackerAPI;
-import saarland.cispa.bletrackerlib.BleTrackerLib;
-import saarland.cispa.bletrackerlib.BeaconStateNotifier;
+import saarland.cispa.bletrackerlib.BleTracker;
+import saarland.cispa.bletrackerlib.remote.RemoteConnection;
+import saarland.cispa.bletrackerlib.remote.RemoteReceiver;
+import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
 import saarland.cispa.bletrackerlib.ServiceAlreadyExistsException;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
@@ -39,6 +39,7 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener ,ItemizedIconOverlay.OnItemGestureListener {
 
     private static final String TAG = "MainActivity";
-    private BleTrackerLib bleTrackerLib;
+    private BleTracker bleTracker;
     private boolean haveDetectedBeaconsSinceBoot = false;
     private String DEFAULT_NOTIFICATION_CHANNEL_ID = "DEFAULT_NOTIFICATION_CHANNEL_ID";
 
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity
 
         showIntroAtFirstStart();
 
-        /*Next 2 Lines recommended by OsmDroid  */
+        //ext 2 Lines recommended by OsmDroid
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
@@ -130,14 +131,16 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //Initialize the tracker lib
+        initTracker();
+
         //Initialize map and set default location
         initMap();
+    }
 
-
-
-
+    private void initTracker() {
         // TODO: Respect settings for operation mode
-        bleTrackerLib = new BleTrackerLib(this, new BeaconStateNotifier() {
+        bleTracker = new BleTracker(this, true, new BeaconStateNotifier() {
             @Override
             public void onUpdate(ArrayList<SimpleBeacon> beacons) {
 
@@ -160,15 +163,10 @@ public class MainActivity extends AppCompatActivity
                 }
                 sendNotification();
             }
-
-            @Override
-            public void onReadyToSend(SimpleBeacon simpleBeacon) {
-
-            }
         });
         try {
-//            bleTrackerLib.startForegroundService(R.drawable.ic_launcher_foreground, getString(R.string.app_name));
-            bleTrackerLib.startBackgroundService();
+//            bleTracker.startForegroundService(R.drawable.ic_launcher_foreground, getString(R.string.app_name));
+            bleTracker.startBackgroundService();
         } catch (ServiceAlreadyExistsException e) {
             e.printStackTrace();
         }
@@ -177,11 +175,10 @@ public class MainActivity extends AppCompatActivity
 
     private void initMap()
     {
-        map = (MapView) findViewById(R.id.map);
+        map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
 
-        // Used in DOC but seems to be deprecated
-         map.setBuiltInZoomControls(true);
+        map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.ALWAYS);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
 
@@ -194,10 +191,10 @@ public class MainActivity extends AppCompatActivity
 
         //Initializing Beacon Overlay
         //TODO: Make fancy icon + circle of range
-        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
+        ArrayList<OverlayItem> items = new ArrayList<>();
         //Add Default marker, CISPA (NOT A BEACON)
         items.add(new OverlayItem("Cispa", "Helmholtz Center for Information Security, ", new GeoPoint(49.25950, 7.05168)));
-        beaconsOverlay= new ItemizedOverlayWithFocus<OverlayItem>(items,this,this);
+        beaconsOverlay= new ItemizedOverlayWithFocus<>(items,this,this);
 
         beaconsOverlay.setFocusItemsOnTap(true);
 
@@ -210,36 +207,30 @@ public class MainActivity extends AppCompatActivity
 
     private void addBeaconToOverlay(SimpleBeacon beacon)
     {
-
         beaconsOverlay.addItem(new OverlayItem("Beacon", beacon.getUuid(), new GeoPoint(beacon.getLocationLat(), beacon.getLocationLong())));
-
     }
 
     private void loadBeacons()
     {
-        BleTrackerAPI api = new BleTrackerAPI("http://192.168.122.21:5000/api/beacon",this){
+        bleTracker.getCispaConnection().requestBeacons(new RemoteReceiver() {
             @Override
             public void onBeaconReceive(SimpleBeacon[] beacons) {
-                for (SimpleBeacon beacon:beacons
-                     ) {
+                for (SimpleBeacon beacon:beacons) {
                     addBeaconToOverlay(beacon);
-
                 }
             }
+
             @Override
             public void onBeaconReceiveError() {
-                Log.d("API","Failed to reciever beacons from api");
+                Log.d("API","Failed to receiver beacons from api");
             }
-        };
-        api.RequestBeacons();
-
-
+        });
     }
 
 
     @Override
     public boolean onItemSingleTapUp(int index, Object item) {
-        //Show strenght of beacon or something
+        //Show strength of beacon or something
         return true;
     }
 
@@ -296,6 +287,7 @@ public class MainActivity extends AppCompatActivity
             notificationManager.createNotificationChannel(channel);
         }
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

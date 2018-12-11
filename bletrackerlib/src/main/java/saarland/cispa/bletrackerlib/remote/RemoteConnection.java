@@ -1,4 +1,4 @@
-package saarland.cispa.bletrackerlib;
+package saarland.cispa.bletrackerlib.remote;
 
 import android.content.Context;
 
@@ -14,18 +14,19 @@ import java.util.List;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
-public class BleTrackerAPI {
+public class RemoteConnection {
 
     private String url;
-    RequestQueue queue ;
-    ;
+    private final Context context;
+    private final RequestQueue queue;
 
-    public BleTrackerAPI(String url,Context context) {
+    public RemoteConnection(String url, Context context) {
         this.url = url;
+        this.context = context;
         queue = Volley.newRequestQueue(context);
     }
 
-    public void RequestBeacons()
+    public void requestBeacons(final RemoteReceiver receiver)
     {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -33,30 +34,16 @@ public class BleTrackerAPI {
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
                         SimpleBeacon[] rcvBeacons = new Gson().fromJson(response, SimpleBeacon[].class);
-                        onBeaconReceive(rcvBeacons);
+                        receiver.onBeaconReceive(rcvBeacons);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                onBeaconReceiveError();
+                receiver.onBeaconReceiveError();
             }
         });
 
-    // Add the request to the RequestQueue.
+        // Add the request to the RequestQueue.
         queue.add(stringRequest);
-
-
     }
-
-    public void onBeaconReceive(SimpleBeacon[] beacons)
-    {
-        //Override pls
-    }
-
-    public void onBeaconReceiveError()
-    {
-        //Override pls
-    }
-
-
 }

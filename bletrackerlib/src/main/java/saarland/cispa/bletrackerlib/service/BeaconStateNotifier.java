@@ -1,4 +1,4 @@
-package saarland.cispa.bletrackerlib;
+package saarland.cispa.bletrackerlib.service;
 
 import java.util.ArrayList;
 
@@ -17,11 +17,4 @@ public interface BeaconStateNotifier {
      * Can be used to show notifications etc.
      */
     void onBeaconNearby();
-
-    /**
-     * Callback if beacon is ready to send.
-     * This get's fired if we have good location and best distance to the beacon
-     * @param beacon the beacon
-     */
-    void onReadyToSend(SimpleBeacon beacon);
 }

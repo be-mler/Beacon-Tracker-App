@@ -23,6 +23,7 @@ public class SimpleBeacon {
      * Contains the Beacon data
      */
     public SimpleBeacon() {
+
     }
 
     public SimpleBeacon(float longitude, float latitude, String uuid) {

@@ -1,4 +1,4 @@
-package saarland.cispa.bletrackerlib;
+package saarland.cispa.bletrackerlib.service;
 
 import android.util.Log;
 
@@ -9,17 +9,28 @@ import org.altbeacon.beacon.Region;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
+import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 
 public class RangeNotifierImpl implements RangeNotifier {
 
     private static final String TAG = "RangeNotifierImpl";
     private final BeaconStateNotifier stateNotifier;
+    private RemoteConnection customConnection = null;
+    private RemoteConnection cispaConnection = null;
+    private HashMap<String, ArrayList<SimpleBeacon>> beaconsHashMap;
 
 
-    RangeNotifierImpl(BeaconStateNotifier stateNotifier) {
+
+    RangeNotifierImpl(BeaconStateNotifier stateNotifier, RemoteConnection cispaConnecition) {
         this.stateNotifier = stateNotifier;
+        this.cispaConnection = cispaConnecition;
+    }
+
+    void setRemoteConnection(RemoteConnection connection) {
+        this.customConnection = connection;
     }
 
     /**
@@ -63,5 +74,6 @@ public class RangeNotifierImpl implements RangeNotifier {
         //}
     }
 
-    //TODO: Get gps coordinates and send best match between signal strength and gps accuracy
+
+    //TODO: Get gps coordinates and send best match between signal strength and gps accuracy to custom remote or to cispa if connections exist
 }

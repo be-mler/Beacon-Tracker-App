@@ -1,4 +1,4 @@
-package saarland.cispa.bletrackerlib;
+package saarland.cispa.bletrackerlib.service;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -14,9 +14,12 @@ import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import org.altbeacon.beacon.startup.BootstrapNotifier;
 import org.altbeacon.beacon.startup.RegionBootstrap;
 
+import saarland.cispa.bletrackerlib.remote.RemoteConnection;
+
 public final class BeaconService implements BootstrapNotifier {
 
     private static final String TAG = "BeaconService";
+    private final RemoteConnection cispaConnection;
     private BeaconManager beaconManager;
     private Context context;
     private final Region region = new Region("AllBeaconsRegion", null, null, null);
@@ -32,10 +35,11 @@ public final class BeaconService implements BootstrapNotifier {
      * @param context app context
      * @param stateNotifier notification callback
      */
-    BeaconService(Context context, BeaconStateNotifier stateNotifier) {
+    public BeaconService(Context context, RemoteConnection cispaConnection, BeaconStateNotifier stateNotifier) {
         this.context = context;
+        this.cispaConnection = cispaConnection;
         this.stateNotifier = stateNotifier;
-        this.rangeNotifier = new RangeNotifierImpl(stateNotifier);
+        this.rangeNotifier = new RangeNotifierImpl(stateNotifier, cispaConnection);
 
         beaconManager = BeaconManager.getInstanceForApplication(context);
 
@@ -60,10 +64,11 @@ public final class BeaconService implements BootstrapNotifier {
      * @param notificationIcon icon for permanent notification
      * @param notificationText text for permanent notification
      */
-    BeaconService(Context context, BeaconStateNotifier stateNotifier, int notificationIcon, String notificationText) {
+    public BeaconService(Context context, RemoteConnection cispaConnection, BeaconStateNotifier stateNotifier, int notificationIcon, String notificationText) {
         this.context = context;
+        this.cispaConnection = cispaConnection;
         this.stateNotifier = stateNotifier;
-        this.rangeNotifier = new RangeNotifierImpl(stateNotifier);
+        this.rangeNotifier = new RangeNotifierImpl(stateNotifier, cispaConnection);
 
         beaconManager = BeaconManager.getInstanceForApplication(context);
 
@@ -144,4 +149,7 @@ public final class BeaconService implements BootstrapNotifier {
     }
 
 
+    public void setRemoteConnection(RemoteConnection connection) {
+        rangeNotifier.setRemoteConnection(connection);
+    }
 }
