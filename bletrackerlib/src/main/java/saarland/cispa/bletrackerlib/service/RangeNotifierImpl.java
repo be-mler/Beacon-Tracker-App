@@ -3,15 +3,14 @@ package saarland.cispa.bletrackerlib.service;
 import android.util.Log;
 
 import org.altbeacon.beacon.Beacon;
-import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
+import saarland.cispa.bletrackerlib.exceptions.SimpleBeaconParseException;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 
 public class RangeNotifierImpl implements RangeNotifier {
@@ -20,9 +19,6 @@ public class RangeNotifierImpl implements RangeNotifier {
     private final BeaconStateNotifier stateNotifier;
     private RemoteConnection customConnection = null;
     private RemoteConnection cispaConnection = null;
-    private HashMap<String, ArrayList<SimpleBeacon>> beaconsHashMap;
-
-
 
     RangeNotifierImpl(BeaconStateNotifier stateNotifier, RemoteConnection cispaConnecition) {
         this.stateNotifier = stateNotifier;
@@ -42,38 +38,13 @@ public class RangeNotifierImpl implements RangeNotifier {
     public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
         ArrayList<SimpleBeacon> simpleBeacons = new ArrayList<>();
         for (Beacon beacon: beacons) {
-            //if (beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x00) {
-            // This is a Eddystone-UID frame
-            Identifier namespaceId = beacon.getId1();
-            Identifier instanceId = null;
             try {
-                 instanceId = beacon.getId2();
-            } catch (Exception e) {
-                //TODO
+                SimpleBeacon simpleBeacon = SimpleBeaconFactory.create(beacon);
+                simpleBeacons.add(simpleBeacon);
+            } catch (SimpleBeaconParseException e) {
+                Log.e(TAG, e.getMessage(), e);
             }
-            Log.d(TAG, "I see a beacon transmitting namespace id: "+namespaceId+
-                    " and instance id: "+instanceId+
-                    " approximately "+beacon.getDistance()+" meters away.");
-
-            // Do we have telemetry data?
-            if (beacon.getExtraDataFields().size() > 0) {
-                long telemetryVersion = beacon.getExtraDataFields().get(0);
-                long batteryMilliVolts = beacon.getExtraDataFields().get(1);
-                long pduCount = beacon.getExtraDataFields().get(3);
-                long uptime = beacon.getExtraDataFields().get(4);
-
-                Log.d(TAG, "The above beacon is sending telemetry version "+telemetryVersion+
-                        ", has been up for : "+uptime+" seconds"+
-                        ", has a battery level of "+batteryMilliVolts+" mV"+
-                        ", and has transmitted "+pduCount+" advertisements.");
-
-            }
-            simpleBeacons.add(new SimpleBeacon());
         }
         stateNotifier.onUpdate(simpleBeacons);
-        //}
     }
-
-
-    //TODO: Get gps coordinates and send best match between signal strength and gps accuracy to custom remote or to cispa if connections exist
 }

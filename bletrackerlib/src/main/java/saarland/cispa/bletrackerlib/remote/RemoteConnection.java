@@ -10,8 +10,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
-import java.util.List;
-
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
 public class RemoteConnection {
@@ -45,5 +43,9 @@ public class RemoteConnection {
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+
+    public void send(SimpleBeacon simpleBeacon) {
+        //TODO: implement
     }
 }

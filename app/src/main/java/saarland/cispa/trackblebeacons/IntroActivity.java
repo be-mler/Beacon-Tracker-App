@@ -9,6 +9,7 @@ import com.github.paolorotolo.appintro.model.SliderPage;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
 
 
 public class IntroActivity extends AppIntro {
@@ -48,7 +49,7 @@ public class IntroActivity extends AppIntro {
         sliderPage5.setTitle("Finished");
         sliderPage5.setDescription("If you want you can specify the app behavior in settings.");
         sliderPage5.setImageDrawable(R.drawable.ic_intro_settings);
-        sliderPage5.setBgColor(ResourcesCompat.getColor(getResources(), R.color.secondaryColor, null));
+        sliderPage5.setBgColor(ResourcesCompat.getColor(getResources(), R.color.introFinish, null));
 
 
         addSlide(AppIntroFragment.newInstance(sliderPage1));
@@ -66,8 +67,8 @@ public class IntroActivity extends AppIntro {
     }
 
     @Override
-    public void onDonePressed() {
-        super.onDonePressed();
+    public void onDonePressed(Fragment fragment) {
+        super.onDonePressed(fragment);
         finish();
     }
 }

@@ -1,0 +1,92 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:2577584110529755736",
+      "lastPropertyId": "16:4487907069743062190",
+      "name": "SimpleBeacon",
+      "properties": [
+        {
+          "id": "1:1307368361249888740",
+          "name": "id"
+        },
+        {
+          "id": "2:3324402283867441973",
+          "name": "locationLong"
+        },
+        {
+          "id": "3:1943495812330981352",
+          "name": "locationLat"
+        },
+        {
+          "id": "4:5556541547402432355",
+          "name": "uuid"
+        },
+        {
+          "id": "5:4939481031029284860",
+          "name": "type"
+        },
+        {
+          "id": "6:7871901552308498658",
+          "name": "url"
+        },
+        {
+          "id": "7:8975816580933467471",
+          "name": "telemetryVersion"
+        },
+        {
+          "id": "8:2634743369198847889",
+          "name": "batteryMilliVolts"
+        },
+        {
+          "id": "9:4374597375605610584",
+          "name": "pduCount"
+        },
+        {
+          "id": "10:2527461801293931478",
+          "name": "uptime"
+        },
+        {
+          "id": "11:8017446233991965380",
+          "name": "signalStrength"
+        },
+        {
+          "id": "12:4341738069697144318",
+          "name": "transmitterPower"
+        },
+        {
+          "id": "13:815126532105361242",
+          "name": "manufacturer"
+        },
+        {
+          "id": "14:8307500670521477071",
+          "name": "bluetoothAddress"
+        },
+        {
+          "id": "15:4204649316944117188",
+          "name": "bluetoothName"
+        },
+        {
+          "id": "16:4487907069743062190",
+          "name": "distance"
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "2:7747745270987522358",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 4,
+  "modelVersionParserMinimum": 4,
+  "retiredEntityUids": [
+    7747745270987522358
+  ],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}

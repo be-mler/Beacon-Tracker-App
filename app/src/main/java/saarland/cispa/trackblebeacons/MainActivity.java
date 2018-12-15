@@ -1,5 +1,6 @@
 package saarland.cispa.trackblebeacons;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -7,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,24 +19,6 @@ import android.widget.ImageButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import saarland.cispa.bletrackerlib.BleTracker;
-import saarland.cispa.bletrackerlib.remote.RemoteConnection;
-import saarland.cispa.bletrackerlib.remote.RemoteReceiver;
-import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
-import saarland.cispa.bletrackerlib.ServiceAlreadyExistsException;
-import saarland.cispa.bletrackerlib.data.SimpleBeacon;
-
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -53,9 +35,26 @@ import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener ,ItemizedIconOverlay.OnItemGestureListener {
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import saarland.cispa.bletrackerlib.BleTracker;
+import saarland.cispa.bletrackerlib.exceptions.ServiceAlreadyExistsException;
+import saarland.cispa.bletrackerlib.data.SimpleBeacon;
+import saarland.cispa.bletrackerlib.remote.RemoteReceiver;
+import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
+import saarland.cispa.bletrackerlib.service.ForegroundNotification;
+
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        ItemizedIconOverlay.OnItemGestureListener {
 
     private static final String TAG = "MainActivity";
     private BleTracker bleTracker;
@@ -177,8 +176,9 @@ public class MainActivity extends AppCompatActivity
             }
         });
         try {
-//            bleTracker.startForegroundService(R.drawable.ic_launcher_foreground, getString(R.string.app_name));
-            bleTracker.startBackgroundService();
+            Notification notification = ForegroundNotification.create(this, R.drawable.ic_stat_name, DEFAULT_NOTIFICATION_CHANNEL_ID);
+            bleTracker.startForegroundService(notification);
+
         } catch (ServiceAlreadyExistsException e) {
             e.printStackTrace();
         }
@@ -321,7 +321,7 @@ public class MainActivity extends AppCompatActivity
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, DEFAULT_NOTIFICATION_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(getTitle())
                 .setContentText("Beacon nearby!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

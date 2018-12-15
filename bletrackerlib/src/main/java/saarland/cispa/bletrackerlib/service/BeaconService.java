@@ -8,7 +8,6 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import org.altbeacon.beacon.BeaconManager;
-import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import org.altbeacon.beacon.startup.BootstrapNotifier;
@@ -47,11 +46,8 @@ public final class BeaconService implements BootstrapNotifier {
 
         beaconManager.addRangeNotifier(rangeNotifier);
 
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_URL_LAYOUT));
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.ALTBEACON_LAYOUT));
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.URI_BEACON_LAYOUT));
+        // Set the Layout of the beacons to which are we listening to
+        LayoutManager.setAllLayouts(beaconManager);
 
         regionBootstrap = new RegionBootstrap(this, region);
     }
@@ -61,10 +57,9 @@ public final class BeaconService implements BootstrapNotifier {
      * Do not change the order of the calls in this constructor without knowing what you are doing!
      * @param context app context
      * @param stateNotifier notification callback
-     * @param notificationIcon icon for permanent notification
-     * @param notificationText text for permanent notification
+     * @param notification a notification shown if the service is running
      */
-    public BeaconService(Context context, RemoteConnection cispaConnection, BeaconStateNotifier stateNotifier, int notificationIcon, String notificationText) {
+    public BeaconService(Context context, RemoteConnection cispaConnection, BeaconStateNotifier stateNotifier, Notification notification) {
         this.context = context;
         this.cispaConnection = cispaConnection;
         this.stateNotifier = stateNotifier;
@@ -72,28 +67,17 @@ public final class BeaconService implements BootstrapNotifier {
 
         beaconManager = BeaconManager.getInstanceForApplication(context);
 
-        Notification.Builder builder = new Notification.Builder(context);
-        builder.setSmallIcon(notificationIcon);
-        builder.setContentTitle(notificationText);
-        Intent intent = new Intent(context, context.getApplicationContext().getClass());
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(pendingIntent);
-        beaconManager.enableForegroundServiceScanning(builder.build(), 0);
-        beaconManager.setEnableScheduledScanJobs(false);
+        beaconManager.enableForegroundServiceScanning(notification, 0);
 
         backgroundPowerSaver = null;
 
         beaconManager.addRangeNotifier(rangeNotifier);
 
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_URL_LAYOUT));
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.ALTBEACON_LAYOUT));
-        beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.URI_BEACON_LAYOUT));
+        // Set the Layout of the beacons to which are we listening to
+        LayoutManager.setAllLayouts(beaconManager);
 
         regionBootstrap = new RegionBootstrap(this, region);
     }
-
 
     /**
      * Called by the BeaconManager to get the context of Service or Activity.
@@ -118,7 +102,7 @@ public final class BeaconService implements BootstrapNotifier {
         try {
             beaconManager.startRangingBeaconsInRegion(region);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage(), e);
         }
         stateNotifier.onBeaconNearby();
     }
@@ -134,7 +118,7 @@ public final class BeaconService implements BootstrapNotifier {
         try {
             beaconManager.stopRangingBeaconsInRegion(region);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage(), e);
         }
     }
 
