@@ -11,7 +11,8 @@
     <color name="secondaryTextColor">#ffffff</color>
 
     <color name="introBluetooth">#039be5</color>
-    <color name="introLocation">#ff5252</color>
+    <color name="introLocation">#e53935</color>
     <color name="introStorage">#fb8c00</color>
+
     <color name="introFinish">#43a047</color>
 </resources>

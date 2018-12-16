@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,6 +33,8 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.compass.CompassOverlay;
+import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
@@ -92,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                     });
 
-                    //  Make a new preferences editor
+                    //  Make a new Preferences editor
                     SharedPreferences.Editor e = getPrefs.edit();
 
                     //  Edit preference to make it false because we don't want this to run again
@@ -198,14 +201,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final IMapController mapController = map.getController();
         mapController.setZoom(DEFAULT_ZOOM_LEVEL);
 
-        GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(getApplicationContext());
-        locationProvider.addLocationSource(LocationManager.GPS_PROVIDER);
-        locationProvider.addLocationSource(LocationManager.NETWORK_PROVIDER);
+        GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(this);
+        locationProvider.addLocationSource(LocationManager.PASSIVE_PROVIDER);
         myLocationOverlay = new MyLocationNewOverlay(locationProvider, map);
         myLocationOverlay.setDrawAccuracyEnabled(true);
-
+//        DrawableConverter converter = new DrawableConverter(this);
+//        Bitmap icon = converter.toBitmap(getResources().getDrawable(R.drawable.ic_my_location_icon), 36, 36);
+//        myLocationOverlay.setPersonIcon(icon);
         myLocationOverlay.enableFollowLocation();
         map.getOverlays().add(myLocationOverlay);
+
+        // Add compass
+        CompassOverlay compassOverlay = new CompassOverlay(this, new InternalCompassOrientationProvider(this), map);
+        compassOverlay.enableCompass();
+        map.getOverlays().add(compassOverlay);
 
         // Button to enable follow me
         btnFollowMe = findViewById(R.id.ic_gps_fixed);
@@ -286,7 +295,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-
     @Override
     public boolean onItemSingleTapUp(int index, Object item) {
         //Show strength of beacon or something
@@ -299,19 +307,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-
-
     @Override
     protected void onPause() {
         super.onPause();
-        myLocationOverlay.disableMyLocation();
         map.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        myLocationOverlay.enableMyLocation();
         map.onResume();
     }
 

@@ -5,8 +5,9 @@ public class SimpleBeacon {
     public long id;
 
     // GPS coordinates
-    private float locationLong;
-    private float locationLat;
+    private double locationLong;
+    private double locationLat;
+    private boolean isLocationSet = false; // Boolean to identify if a location was set or not because 0,0 is a valid coordinate too
 
     // Type of beacon to extract the right data at endpoint
     // Type is directly deserved from @SimpleBeaconParser enum entity
@@ -57,17 +58,22 @@ public class SimpleBeacon {
         return id;
     }
 
-    public float getLocationLong() {
+    public double getLocationLong() {
         return locationLong;
     }
 
-    public float getLocationLat() {
+    public double getLocationLat() {
         return locationLat;
     }
 
-    public void setLocation(float locationLong, float locationLat) {
+    public void setLocation(double locationLong, double locationLat) {
         this.locationLong = locationLong;
         this.locationLat = locationLat;
+        isLocationSet = true;
+    }
+
+    public boolean isLocationSet() {
+        return isLocationSet;
     }
 
     public String getType() {

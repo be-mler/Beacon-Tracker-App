@@ -38,7 +38,7 @@ public final class BeaconService implements BootstrapNotifier {
         this.context = context;
         this.cispaConnection = cispaConnection;
         this.stateNotifier = stateNotifier;
-        this.rangeNotifier = new RangeNotifierImpl(stateNotifier, cispaConnection);
+        this.rangeNotifier = new RangeNotifierImpl(context, stateNotifier, cispaConnection);
 
         beaconManager = BeaconManager.getInstanceForApplication(context);
 
@@ -63,7 +63,7 @@ public final class BeaconService implements BootstrapNotifier {
         this.context = context;
         this.cispaConnection = cispaConnection;
         this.stateNotifier = stateNotifier;
-        this.rangeNotifier = new RangeNotifierImpl(stateNotifier, cispaConnection);
+        this.rangeNotifier = new RangeNotifierImpl(context, stateNotifier, cispaConnection);
 
         beaconManager = BeaconManager.getInstanceForApplication(context);
 

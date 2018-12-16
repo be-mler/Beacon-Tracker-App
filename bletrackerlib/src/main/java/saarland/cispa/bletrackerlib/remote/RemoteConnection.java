@@ -10,6 +10,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
+import java.util.List;
+
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
 public class RemoteConnection {
@@ -17,11 +19,13 @@ public class RemoteConnection {
     private String url;
     private final Context context;
     private final RequestQueue queue;
+    private boolean sendOnlyWithGpsCoords;
 
-    public RemoteConnection(String url, Context context) {
+    public RemoteConnection(String url, Context context, boolean sendOnlyWithGpsCoords) {
         this.url = url;
         this.context = context;
         queue = Volley.newRequestQueue(context);
+        this.sendOnlyWithGpsCoords = sendOnlyWithGpsCoords;
     }
 
     public void requestBeacons(final RemoteReceiver receiver)
@@ -46,6 +50,24 @@ public class RemoteConnection {
     }
 
     public void send(SimpleBeacon simpleBeacon) {
-        //TODO: implement
+        if (sendOnlyWithGpsCoords) {
+            if (simpleBeacon.isLocationSet()) {
+                //TODO: sned
+            }
+        } else {
+            //TODO: send
+        }
+    }
+
+    public void sendAll(List<SimpleBeacon> simpleBeacons) {
+        for (SimpleBeacon simpleBeacon : simpleBeacons) {
+            if (sendOnlyWithGpsCoords) {
+                if (simpleBeacon.isLocationSet()) {
+                    //TODO: sned
+                }
+            } else {
+                //TODO: send
+            }
+        }
     }
 }

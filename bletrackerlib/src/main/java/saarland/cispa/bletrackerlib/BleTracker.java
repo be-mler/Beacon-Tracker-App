@@ -33,7 +33,7 @@ public class BleTracker {
         this.context = context;
         this.notifier = notifier;
         if (sendToCispa) {
-            cispaConnection = new RemoteConnection("http://192.168.122.21:5000/api/beacon", context);
+            cispaConnection = new RemoteConnection("http://192.168.122.21:5000/api/beacon", context, true);
         } else {
             cispaConnection = null;
         }
