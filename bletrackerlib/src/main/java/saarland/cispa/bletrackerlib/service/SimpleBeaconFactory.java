@@ -8,6 +8,9 @@ import android.location.LocationManager;
 
 import org.altbeacon.beacon.Beacon;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.data.SimpleBeaconParser;
 import saarland.cispa.bletrackerlib.exceptions.SimpleBeaconParseException;
@@ -41,6 +44,7 @@ public class SimpleBeaconFactory {
         } catch (Exception e) {
             throw new SimpleBeaconParseException(e);
         }
+        simpleBeacon.setDiscoveryTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         return simpleBeacon;
     }
 
