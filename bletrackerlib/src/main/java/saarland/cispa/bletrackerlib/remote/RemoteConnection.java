@@ -1,14 +1,20 @@
 package saarland.cispa.bletrackerlib.remote;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -49,25 +55,50 @@ public class RemoteConnection {
         queue.add(stringRequest);
     }
 
+    private void sendBeacon(SimpleBeacon simpleBeacon)
+    {
+        JSONObject beaconAsJson = null;
+        try {
+            beaconAsJson = new JSONObject(new Gson().toJson(simpleBeacon));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,url,beaconAsJson,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //TODO: Give user feedback of successfull submission?
+                    Log.d("BEACON","SENDBEACON");
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // TODO: Handle error
+                Log.d("BEACON","SENDBEACON_ERROR");
+            }
+        });
+        queue.add(jsonObjectRequest);
+    }
+
+
+
+
+
     public void send(SimpleBeacon simpleBeacon) {
         if (sendOnlyWithGpsCoords) {
             if (simpleBeacon.isLocationSet()) {
-                //TODO: sned
+                sendBeacon(simpleBeacon);
             }
         } else {
-            //TODO: send
+            sendBeacon(simpleBeacon);
         }
     }
 
     public void sendAll(List<SimpleBeacon> simpleBeacons) {
         for (SimpleBeacon simpleBeacon : simpleBeacons) {
-            if (sendOnlyWithGpsCoords) {
-                if (simpleBeacon.isLocationSet()) {
-                    //TODO: sned
-                }
-            } else {
-                //TODO: send
-            }
+            send(simpleBeacon);
         }
     }
 }
