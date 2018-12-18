@@ -4,6 +4,11 @@ public class SimpleBeacon {
     //TODO: Something for local db... no idea how to realize a unique id for a beacon which has none...
     public long id;
 
+
+
+    //Additional Stuff
+    private String discoveryTime;
+
     // GPS coordinates
     private double locationLong;
     private double locationLat;
@@ -41,7 +46,7 @@ public class SimpleBeacon {
 
     // RuuviTag
     private double airPressure;
-    private double temprature;
+    private double temperature;
     private double humidity;
 
     public SimpleBeacon(String type, int signalStrength, int transmitterPower, int manufacturer, String bluetoothAddress, String bluetoothName, double distance) {
@@ -192,12 +197,12 @@ public class SimpleBeacon {
         this.airPressure = airPressure;
     }
 
-    public double getTemprature() {
-        return temprature;
+    public double getTemperature() {
+        return temperature;
     }
 
-    public void setTemprature(double temprature) {
-        this.temprature = temprature;
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
     }
 
     public double getHumidity() {
@@ -207,4 +212,32 @@ public class SimpleBeacon {
     public void setHumidity(double humidity) {
         this.humidity = humidity;
     }
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getDiscoveryTime() {
+        return discoveryTime;
+    }
+
+    public void setDiscoveryTime(String discoveryTime) {
+        this.discoveryTime = discoveryTime;
+    }
+
+    public void setLocationLong(double locationLong) {
+        this.locationLong = locationLong;
+    }
+
+    public void setLocationLat(double locationLat) {
+        this.locationLat = locationLat;
+    }
+
+    public void setLocationSet(boolean locationSet) {
+        isLocationSet = locationSet;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
 }
