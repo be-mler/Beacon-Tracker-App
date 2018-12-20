@@ -1,9 +1,7 @@
 package saarland.cispa.bletrackerlib.service;
 
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -67,7 +65,10 @@ public final class BeaconService implements BootstrapNotifier {
 
         beaconManager = BeaconManager.getInstanceForApplication(context);
 
-        beaconManager.enableForegroundServiceScanning(notification, 0);
+        beaconManager.enableForegroundServiceScanning(notification, 456);
+        beaconManager.setEnableScheduledScanJobs(false);
+        beaconManager.setBackgroundBetweenScanPeriod(0);
+        beaconManager.setBackgroundScanPeriod(1000);
 
         backgroundPowerSaver = null;
 

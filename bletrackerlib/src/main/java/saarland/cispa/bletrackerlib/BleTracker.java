@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
-import android.provider.ContactsContract;
 import android.provider.Settings;
 
 import androidx.appcompat.app.AlertDialog;
@@ -14,7 +13,6 @@ import saarland.cispa.bletrackerlib.exceptions.ServiceAlreadyExistsException;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 import saarland.cispa.bletrackerlib.service.BeaconService;
 import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
-import saarland.cispa.bletrackerlib.service.ForegroundNotification;
 
 public class BleTracker {
 
