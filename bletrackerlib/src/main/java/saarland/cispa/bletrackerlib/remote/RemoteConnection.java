@@ -88,7 +88,7 @@ public class RemoteConnection {
 
     public void send(SimpleBeacon simpleBeacon) {
         if (sendOnlyWithGpsCoords) {
-            if (simpleBeacon.isLocationSet()) {
+            if (simpleBeacon.location != null) {
                 sendBeacon(simpleBeacon);
             }
         } else {

@@ -9,5 +9,37 @@
     <string name="notification_channel_name">Default Channel</string>
     <string name="notification_channel_description">Default Channel</string>
     <string name="btn_gps_fixed">Center map to my position</string>
+    <string name="tab_map_text">Map</string>
+    <string name="tab_nearby_text">Scan</string>
+    <string name="visit_website">Visit Website</string>
+    <string name="meters_abbreviation">m</string>
+
+    <string name="rssi_x_dbm">RSSI %d dBm</string>
+    <string name="tx_x_dbm">TX %d dBm</string>
+    <string name="battery_x_mv">Battery %d mV</string>
+    <string name="uptime_x_seconds">Uptime %s seconds</string>
+    <string name="x_packets_sent">%s packets sent</string>
+    <string name="temperature_x_degres">Temperature %.1f °C</string>
+    <string name="url_x">URL • %s</string>
+    <string name="uuid_x">UUID • %s</string>
+    <string name="major_x">Major • %s</string>
+    <string name="minor_x">Minor • %s</string>
+    <string name="namespace_id_x">NamespaceID • %s</string>
+    <string name="instance_id_x">InstanceID • %s</string>
+
+    <string name="eddystone">Eddystone</string>
+    <string name="altbeacon">ALTbeacon</string>
+    <string name="ibeacon">iBeacon</string>
+    <string name="eddystone_uid">Eddystone-UID</string>
+    <string name="plus_tlm"><![CDATA[&TLM]]></string>
+    <string name="eddystone_url">Eddystone-URL</string>
+    <string name="ruuvitag">RuuviTag</string>
+
+    <string name="air_pressure_x_hpa">Air pressure %d hPa</string>
+    <string name="temperature_d_degres">Temperature %d °C</string>
+    <string name="humidity_x_percent">Humidity %d %%</string>
+
+    <string name="empty_state_content">To start scanning for nearby beacons just press the scan button. You\'ll see the scan results appear here.</string>
+    <string name="no_scanned_beacons_yet">No scanned beacons yet!</string>
 
 </resources>

@@ -1,4 +1,4 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.helpers;
 
 import android.content.Context;
 import android.graphics.Bitmap;

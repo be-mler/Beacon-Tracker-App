@@ -12,28 +12,29 @@ import java.util.Collection;
 import java.util.List;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
-import saarland.cispa.bletrackerlib.exceptions.SimpleBeaconParseException;
+import saarland.cispa.bletrackerlib.exceptions.ParseException;
+import saarland.cispa.bletrackerlib.parser.SimpleBeaconParser;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 
 public class RangeNotifierImpl implements RangeNotifier {
 
     private static final String TAG = "RangeNotifierImpl";
-    private final BeaconStateNotifier stateNotifier;
+    private final ArrayList<BeaconStateNotifier> stateNotifiers;
     private final Context context;
-    private final SimpleBeaconFactory sbf;
-    private RemoteConnection customConnection = null;
+    private final SimpleBeaconParser parser;
+    private ArrayList<RemoteConnection> customConnections = new ArrayList<>();
     private RemoteConnection cispaConnection = null;
 
-    RangeNotifierImpl(Context context, BeaconStateNotifier stateNotifier, RemoteConnection cispaConnecition) {
+    RangeNotifierImpl(Context context, ArrayList<BeaconStateNotifier> stateNotifiers, RemoteConnection cispaConnecition) {
         this.context = context;
-        this.stateNotifier = stateNotifier;
+        this.stateNotifiers = stateNotifiers;
         this.cispaConnection = cispaConnecition;
-        sbf = new SimpleBeaconFactory(context);
+        parser = new SimpleBeaconParser(context);
 
     }
 
-    void setRemoteConnection(RemoteConnection connection) {
-        this.customConnection = connection;
+    void addRemoteConnection(RemoteConnection connection) {
+        customConnections.add(connection);
     }
 
     /**
@@ -46,14 +47,18 @@ public class RangeNotifierImpl implements RangeNotifier {
         ArrayList<SimpleBeacon> simpleBeacons = new ArrayList<>();
         for (Beacon beacon: beacons) {
             try {
-                SimpleBeacon simpleBeacon = sbf.create(beacon);
+                SimpleBeacon simpleBeacon = parser.parse(beacon);
                 simpleBeacons.add(simpleBeacon);
-            } catch (SimpleBeaconParseException e) {
+            } catch (ParseException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
         }
-        sendAll(simpleBeacons);
-        stateNotifier.onUpdate(simpleBeacons);
+        if (simpleBeacons.size() > 0) {
+            sendAll(simpleBeacons);
+            for (BeaconStateNotifier stateNotifier : stateNotifiers) {
+                stateNotifier.onUpdate(simpleBeacons);
+            }
+        }
     }
 
     /**
@@ -64,7 +69,7 @@ public class RangeNotifierImpl implements RangeNotifier {
         if (cispaConnection != null) {
             cispaConnection.sendAll(simpleBeacons);
         }
-        if (customConnection != null) {
+        for (RemoteConnection customConnection : customConnections) {
             customConnection.sendAll(simpleBeacons);
         }
     }

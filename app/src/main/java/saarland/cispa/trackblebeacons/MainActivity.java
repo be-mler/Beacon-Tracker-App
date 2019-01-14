@@ -4,73 +4,49 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.location.LocationManager;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-
-import org.osmdroid.api.IMapController;
-import org.osmdroid.config.Configuration;
-import org.osmdroid.events.MapListener;
-import org.osmdroid.events.ScrollEvent;
-import org.osmdroid.events.ZoomEvent;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.CustomZoomButtonsController;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
-import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.compass.CompassOverlay;
-import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import saarland.cispa.bletrackerlib.BleTracker;
-import saarland.cispa.bletrackerlib.exceptions.ServiceAlreadyExistsException;
+import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
-import saarland.cispa.bletrackerlib.remote.RemoteReceiver;
 import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
 import saarland.cispa.bletrackerlib.service.ForegroundNotification;
+import saarland.cispa.trackblebeacons.helpers.CustomViewPager;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        ItemizedIconOverlay.OnItemGestureListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+
     private BleTracker bleTracker;
+
     private boolean haveDetectedBeaconsSinceBoot = false;
     private String DEFAULT_NOTIFICATION_CHANNEL_ID = "DEFAULT_NOTIFICATION_CHANNEL_ID";
-    private final float DEFAULT_ZOOM_LEVEL = 20.0F;
     private final String FIRST_START_PROPERTY_KEY = "firstStart";
+    private PagerAdapter pagerAdapter;
 
-    MapView map = null;
-    ItemizedOverlayWithFocus<OverlayItem> beaconsOverlay;
-    private MyLocationNewOverlay myLocationOverlay;
-    private ImageButton btnFollowMe;
-
+    private CustomViewPager mViewPager;
     private void showIntroAtFirstStart() {
         //  Declare a new thread to do a preference check
         Thread t = new Thread(new Runnable() {
@@ -119,42 +95,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         showIntroAtFirstStart();
 
-        //ext 2 Lines recommended by OsmDroid
-        Context ctx = getApplicationContext();
-        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the activity.
+        pagerAdapter = new PagerAdapter(getSupportFragmentManager(), 2);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = findViewById(R.id.container);
+        mViewPager.setAdapter(pagerAdapter);
+        mViewPager.setSwipingEnabled(false);
+
+        TabLayout tabLayout = findViewById(R.id.tabs);
+
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+
+        initTracker();
+    }
+
+
+    private void initTracker() {
+        bleTracker = new BleTracker(this, false);
+        final FloatingActionButton fab = findViewById(R.id.fab);
+        final Animation animation = new RotateAnimation(0.0f, 360.0f,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,0.5f);
+        animation.setRepeatCount(-1);
+        animation.setDuration(2000);
+        if (bleTracker.isRunning()) {
+            fab.setImageDrawable(getDrawable(R.drawable.ic_stop));
+            fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningRed)));
+            //fab.setAnimation(animation);
+        }
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (!bleTracker.isRunning()) {
+                    Notification notification = ForegroundNotification.create(getApplicationContext(), R.drawable.ic_stat_name, MainActivity.class);
+                    try {
+                        bleTracker.createForegroundService(notification);
+                    } catch (OtherServiceStillRunningException e) {
+                        e.printStackTrace();
+                    }
+                    bleTracker.start();
+                    Snackbar.make(view, "Started scanning for beacons", Snackbar.LENGTH_LONG).show();
+                    fab.setImageDrawable(getDrawable(R.drawable.ic_stop));
+                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningRed)));
+                    //fab.setAnimation(animation);
+                } else {
+                    bleTracker.stop();
+                    Snackbar.make(view, "Stopped scanning for beacons", Snackbar.LENGTH_LONG).show();
+                    fab.setImageDrawable(getDrawable(R.drawable.ic_play_arrow));
+                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningGreen)));
+                    //fab.setAnimation(null);
+                }
             }
         });
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        //Initialize the tracker lib
-        initTracker();
-
-        //Initialize map and set default location
-        initMap();
-    }
-
-    private void initTracker() {
         // TODO: Respect settings for operation mode
-        bleTracker = new BleTracker(this, true, new BeaconStateNotifier() {
+        bleTracker.addNotifier(new BeaconStateNotifier() {
             @Override
             public void onUpdate(ArrayList<SimpleBeacon> beacons) {
 
@@ -164,7 +165,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onBeaconNearby() {
                 if (!haveDetectedBeaconsSinceBoot) {
                     Log.d(TAG, "auto launching MainActivity");
-
                     // The very first time since boot that we detect an beacon, we launch the
                     // MainActivity
                     Intent intent = new Intent(MainActivity.this, MainActivity.class);
@@ -178,146 +178,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 sendNotification();
             }
         });
-        try {
-            Notification notification = ForegroundNotification.create(this, R.drawable.ic_stat_name, DEFAULT_NOTIFICATION_CHANNEL_ID);
-            bleTracker.startForegroundService(notification);
-
-        } catch (ServiceAlreadyExistsException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void initMap()
-    {
-        map = findViewById(R.id.map);
-        map.setTileSource(TileSourceFactory.MAPNIK);
-
-        map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.ALWAYS);
-
-        map.setMultiTouchControls(true);
-
-        //Building level zoom
-        final IMapController mapController = map.getController();
-        mapController.setZoom(DEFAULT_ZOOM_LEVEL);
-
-        GpsMyLocationProvider locationProvider = new GpsMyLocationProvider(this);
-        locationProvider.addLocationSource(LocationManager.PASSIVE_PROVIDER);
-        myLocationOverlay = new MyLocationNewOverlay(locationProvider, map);
-        myLocationOverlay.setDrawAccuracyEnabled(true);
-//        DrawableConverter converter = new DrawableConverter(this);
-//        Bitmap icon = converter.toBitmap(getResources().getDrawable(R.drawable.ic_my_location_icon), 36, 36);
-//        myLocationOverlay.setPersonIcon(icon);
-        myLocationOverlay.enableFollowLocation();
-        map.getOverlays().add(myLocationOverlay);
-
-        // Add compass
-        CompassOverlay compassOverlay = new CompassOverlay(this, new InternalCompassOrientationProvider(this), map);
-        compassOverlay.enableCompass();
-        map.getOverlays().add(compassOverlay);
-
-        // Button to enable follow me
-        btnFollowMe = findViewById(R.id.ic_gps_fixed);
-        btnFollowMe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "btnFollowMe clicked");
-                if (!myLocationOverlay.isFollowLocationEnabled()) {
-                    myLocationOverlay.enableFollowLocation();
-                    mapController.setZoom(DEFAULT_ZOOM_LEVEL);
-                    btnFollowMe.setImageResource(R.drawable.ic_gps_fixed);
-                } else {
-                    myLocationOverlay.disableFollowLocation();
-                    btnFollowMe.setImageResource(R.drawable.ic_gps_not_fixed);
-                }
-            }
-        });
-
-        // Set Image of btnFollowMe to the corresponding icon if there is a zoom or a scroll event
-        // Zoom and scroll by multitouch disables location following
-        map.addMapListener(new MapListener() {
-            @Override
-            public boolean onScroll(ScrollEvent event) {
-                if (!myLocationOverlay.isFollowLocationEnabled()) {
-                    btnFollowMe.setImageResource(R.drawable.ic_gps_not_fixed);
-                } else {
-                    btnFollowMe.setImageResource(R.drawable.ic_gps_fixed);
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onZoom(ZoomEvent event) {
-                if (!myLocationOverlay.isFollowLocationEnabled()) {
-                    btnFollowMe.setImageResource(R.drawable.ic_gps_not_fixed);
-                } else {
-                    btnFollowMe.setImageResource(R.drawable.ic_gps_fixed);
-                }
-                return true;
-            }
-        });
-
-        //Initializing Beacon Overlay
-        //TODO: Make fancy icon + circle of range
-        ArrayList<OverlayItem> items = new ArrayList<>();
-        //Add Default marker, CISPA (NOT A BEACON)
-        items.add(new OverlayItem("Cispa", "Helmholtz Center for Information Security, ", new GeoPoint(49.25950, 7.05168)));
-        beaconsOverlay= new ItemizedOverlayWithFocus<>(items,this,this);
-
-        beaconsOverlay.setFocusItemsOnTap(true);
-
-        map.getOverlays().add(beaconsOverlay);
-
-        loadBeacons();
-
-    }
-
-
-    private void addBeaconToOverlay(SimpleBeacon beacon)
-    {
-        beaconsOverlay.addItem(new OverlayItem("Beacon", beacon.getUuid(), new GeoPoint(beacon.getLocationLat(), beacon.getLocationLong())));
-    }
-
-    private void loadBeacons()
-    {
-        bleTracker.getCispaConnection().requestBeacons(new RemoteReceiver() {
-            @Override
-            public void onBeaconReceive(SimpleBeacon[] beacons) {
-                for (SimpleBeacon beacon:beacons) {
-                    addBeaconToOverlay(beacon);
-                }
-            }
-
-            @Override
-            public void onBeaconReceiveError() {
-                Log.d("API","Failed to receiver beacons from api");
-            }
-        });
     }
 
     @Override
-    public boolean onItemSingleTapUp(int index, Object item) {
-        //Show strength of beacon or something
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
-    public boolean onItemLongPress(int index, Object item) {
-        //Show detailed information?
-        return false;
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        map.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        map.onResume();
-    }
 
     private void sendNotification() {
         Intent intent = new Intent(this, MainActivity.class);
@@ -361,32 +245,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+    protected void onPause() {
+        super.onPause();
+        bleTracker.setContext(null);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
+    protected void onResume() {
+        super.onResume();
+        bleTracker.setContext(this);
+    }
 
-        if (id == R.id.nav_reports) {
-            // Handle the camera action
-        } else if (id == R.id.nav_settings) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_info) {
-
-        }
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+    public BleTracker getBleTracker() {
+        return bleTracker;
     }
 }

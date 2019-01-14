@@ -1,243 +1,236 @@
 package saarland.cispa.bletrackerlib.data;
 
 public class SimpleBeacon {
-    //TODO: Something for local db... no idea how to realize a unique id for a beacon which has none...
+
+    public static class Location {
+        /**
+         * The locations longitude
+         */
+        public double locationLong;
+        /**
+         * The locations latitude
+         */
+        public double locationLat;
+
+        /**
+         * @param locationLong The locations longitude
+         * @param locationLat The locations latitude
+         */
+        public Location(double locationLong, double locationLat) {
+            this.locationLong = locationLong;
+            this.locationLat = locationLat;
+        }
+    }
+
+    public static class Telemetry {
+        /**
+         * Specifies the format for the additional data. This is always 0 at the moment
+         */
+        public long telemetryVersion;
+
+        /**
+         * Indicates the battery voltage in mV. If the beacon is powered by USB the value is zero
+         */
+        public long batteryMilliVolts;
+
+        /**
+         * The temperature of the beacon in °C. If the beacon has no sensor the value is zero
+         */
+        public double temperature;
+
+        /**
+         * A counter how many advertisement packets the beacon has sent till last power on
+         */
+        public long pduCount;
+
+        /**
+         * The uptime of the beacon in s. If the beacon has no time counter the value is zero
+         */
+        public long uptime;
+
+        /**
+         * @param telemetryVersion Specifies the format for the additional data. This is always 0 at the moment
+         * @param batteryMilliVolts Indicates the battery voltage in mV. If the beacon is powered by USB the value is zero
+         * @param temperature The temperature of the beacon in °C. If the beacon has no sensor the value is zero
+         * @param pduCount A counter how many advertisement packets the beacon has sent till last power on
+         * @param uptime The uptime of the beacon in s. If the beacon has no time counter the value is zero
+         */
+        public Telemetry(long telemetryVersion, long batteryMilliVolts, double temperature, long pduCount, long uptime) {
+            this.telemetryVersion = telemetryVersion;
+            this.batteryMilliVolts = batteryMilliVolts;
+            this.temperature = temperature;
+            this.pduCount = pduCount;
+            this.uptime = uptime;
+        }
+    }
+
+    public static class AltbeaconIBeaconData {
+
+        /**
+         * The UUID of the beacon. Differs most time from company to company
+         */
+        public String uuid;
+
+        /**
+         * The Major ID. This could be used to indicate a certain store of this company
+         */
+        public String major;
+        /**
+         * The Minor. This could be used to indicate the beacon in the store
+         */
+        public String minor;
+
+        /**
+         * @param uuid The UUID of the beacon. Differs most time from company to company
+         * @param major The Major ID. This could be used to indicate a certain store of this company
+         * @param minor The Minor. This could be used to indicate the beacon in the store
+         */
+        public AltbeaconIBeaconData(String uuid, String major, String minor) {
+            this.uuid = uuid;
+            this.major = major;
+            this.minor = minor;
+        }
+    }
+
+    public static class Ruuvi {
+        /**
+         * The air humidity in %
+         */
+        public int humidity;
+
+        /**
+         * The airPressure in hPa
+         */
+        public int airPressure;
+
+        /**
+         * The temperature in °C
+         */
+        public int temperature;
+
+        /**
+         * @param humidity The air humidity in %
+         * @param airPressure The airPressure in hPa
+         * @param temperature The temperature in °C
+         */
+        public Ruuvi(int humidity, int airPressure, int temperature) {
+            this.humidity = humidity;
+            this.airPressure = airPressure;
+            this.temperature = temperature;
+        }
+    }
+
+    public static class EddystoneURL {
+        /**
+         * The URL the beacon advertises
+         */
+        public String url;
+
+        /**
+         * @param url The URL the beacon advertises
+         */
+        public EddystoneURL(String url) {
+            this.url = url;
+        }
+    }
+
+    public static class EddystoneUID {
+
+        /**
+         * The namespace ID
+         */
+        public String namespaceId;
+
+        /**
+         * The instance ID
+         */
+        public String instanceId;
+
+        /**
+         * @param namespaceId The namespace ID
+         * @param instanceId The instance ID
+         */
+        public EddystoneUID(String namespaceId, String instanceId) {
+            this.namespaceId = namespaceId;
+            this.instanceId = instanceId;
+        }
+    }
+
+    // The following data has every beacon
+
+    //TODO: something useful with id...
     public long id;
 
+    /**
+     *  The beaconType of beacon is directly deserved from SimpleBeaconLayouts enum entity
+     */
+    public String beaconType;
 
+    /**
+     * The signal strength in dBm
+     */
+    public int signalStrength;
 
-    //Additional Stuff
-    private String discoveryTime;
+    /**
+     * The transmit power TX
+     */
+    public int transmitPower;
 
-    // GPS coordinates
-    private double locationLong;
-    private double locationLat;
-    private boolean isLocationSet = false; // Boolean to identify if a location was set or not because 0,0 is a valid coordinate too
+    /**
+     * The manufacturer
+     */
+    public int manufacturer;
 
-    // Type of beacon to extract the right data at endpoint
-    // Type is directly deserved from @SimpleBeaconParser enum entity
-    private String type;
+    /**
+     * The bluetooth MAC address
+     */
+    public String bluetoothAddress;
 
-    // Data which has every beacon
-    private final int signalStrength;
-    private final int transmitterPower;
-    private final int manufacturer;
-    private final String bluetoothAddress;
-    private final String bluetoothName;
-    private final double distance;
+    /**
+     * The bluetooth name
+     */
+    public String bluetoothName;
 
-    // AltBeacon and iBeacon
-    private String uuid;
-    private String major;
-    private String minor;
+    /**
+     * The accumulative distance in meters
+     */
+    public double distance;
 
-    // Eddystone UID and Eddystone TLM
-    private String namespaceId;
-    private String instanceId;
+    /**
+     * Time when beacon was discovered
+     */
+    public String timestamp;
 
-    // Eddystone TLM
-    private long telemetryVersion;
-    private long batteryMilliVolts;
-    private long pduCount;
-    private long uptime;
+    // This data is set accordingly which beacon we deal with. It is in relation to the beacon beaconType
+    public Location location;
+    public Telemetry telemetry;
+    public AltbeaconIBeaconData altbeaconIBeaconData;
+    public Ruuvi ruuvi;
+    public EddystoneUID eddystoneUidData;
+    public EddystoneURL eddystoneUrlData;
 
-    // Eddystone URL
-    private String url;
+    public SimpleBeacon() {
 
-    // RuuviTag
-    private double airPressure;
-    private double temperature;
-    private double humidity;
+    }
 
-    public SimpleBeacon(String type, int signalStrength, int transmitterPower, int manufacturer, String bluetoothAddress, String bluetoothName, double distance) {
-        this.type = type;
+    /**
+     * @param beaconType The beaconType of beacon is directly deserved from @SimpleBeaconLayouts enum entity
+     * @param signalStrength The signal strength in dBm
+     * @param transmitPower The transmit power TX
+     * @param manufacturer The manufacturer
+     * @param bluetoothAddress The bluetooth MAC address
+     * @param bluetoothName The bluetooth name
+     * @param distance The accumulative distance in meters
+     */
+
+    public SimpleBeacon(String beaconType, int signalStrength, int transmitPower, int manufacturer, String bluetoothAddress, String bluetoothName, double distance, String timestamp) {
+        this.beaconType = beaconType;
         this.signalStrength = signalStrength;
-        this.transmitterPower = transmitterPower;
+        this.transmitPower = transmitPower;
         this.manufacturer = manufacturer;
         this.bluetoothAddress = bluetoothAddress;
         this.bluetoothName = bluetoothName;
         this.distance = distance;
+        this.timestamp = timestamp;
     }
-
-    public long getId() {
-        return id;
-    }
-
-    public double getLocationLong() {
-        return locationLong;
-    }
-
-    public double getLocationLat() {
-        return locationLat;
-    }
-
-    public void setLocation(double locationLong, double locationLat) {
-        this.locationLong = locationLong;
-        this.locationLat = locationLat;
-        isLocationSet = true;
-    }
-
-    public boolean isLocationSet() {
-        return isLocationSet;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public int getSignalStrength() {
-        return signalStrength;
-    }
-
-    public int getTransmitterPower() {
-        return transmitterPower;
-    }
-
-    public int getManufacturer() {
-        return manufacturer;
-    }
-
-    public String getBluetoothAddress() {
-        return bluetoothAddress;
-    }
-
-    public String getBluetoothName() {
-        return bluetoothName;
-    }
-
-    public double getDistance() {
-        return distance;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public String getMajor() {
-        return major;
-    }
-
-    public void setMajor(String major) {
-        this.major = major;
-    }
-
-    public String getMinor() {
-        return minor;
-    }
-
-    public void setMinor(String minor) {
-        this.minor = minor;
-    }
-
-    public String getNamespaceId() {
-        return namespaceId;
-    }
-
-    public void setNamespaceId(String namespaceId) {
-        this.namespaceId = namespaceId;
-    }
-
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
-
-    public long getTelemetryVersion() {
-        return telemetryVersion;
-    }
-
-    public void setTelemetryVersion(long telemetryVersion) {
-        this.telemetryVersion = telemetryVersion;
-    }
-
-    public long getBatteryMilliVolts() {
-        return batteryMilliVolts;
-    }
-
-    public void setBatteryMilliVolts(long batteryMilliVolts) {
-        this.batteryMilliVolts = batteryMilliVolts;
-    }
-
-    public long getPduCount() {
-        return pduCount;
-    }
-
-    public void setPduCount(long pduCount) {
-        this.pduCount = pduCount;
-    }
-
-    public long getUptime() {
-        return uptime;
-    }
-
-    public void setUptime(long uptime) {
-        this.uptime = uptime;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public double getAirPressure() {
-        return airPressure;
-    }
-
-    public void setAirPressure(double airPressure) {
-        this.airPressure = airPressure;
-    }
-
-    public double getTemperature() {
-        return temperature;
-    }
-
-    public void setTemperature(double temperature) {
-        this.temperature = temperature;
-    }
-
-    public double getHumidity() {
-        return humidity;
-    }
-
-    public void setHumidity(double humidity) {
-        this.humidity = humidity;
-    }
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getDiscoveryTime() {
-        return discoveryTime;
-    }
-
-    public void setDiscoveryTime(String discoveryTime) {
-        this.discoveryTime = discoveryTime;
-    }
-
-    public void setLocationLong(double locationLong) {
-        this.locationLong = locationLong;
-    }
-
-    public void setLocationLat(double locationLat) {
-        this.locationLat = locationLat;
-    }
-
-    public void setLocationSet(boolean locationSet) {
-        isLocationSet = locationSet;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
 }

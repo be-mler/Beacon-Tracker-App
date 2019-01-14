@@ -1,7 +1,7 @@
 package saarland.cispa.bletrackerlib.service;
 
+import android.app.Application;
 import android.app.Notification;
-import android.content.Context;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -11,60 +11,66 @@ import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
 import org.altbeacon.beacon.startup.BootstrapNotifier;
 import org.altbeacon.beacon.startup.RegionBootstrap;
 
+import java.util.ArrayList;
+
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 
-public final class BeaconService implements BootstrapNotifier {
+public final class BleTrackerService extends Application implements BootstrapNotifier {
 
-    private static final String TAG = "BeaconService";
-    private final RemoteConnection cispaConnection;
+    private static final String TAG = "BleTrackerService";
+    private RemoteConnection cispaConnection;
     private BeaconManager beaconManager;
-    private Context context;
     private final Region region = new Region("AllBeaconsRegion", null, null, null);
-    private final RegionBootstrap regionBootstrap;
-    private final BackgroundPowerSaver backgroundPowerSaver;
-    private BeaconStateNotifier stateNotifier;
+    private RegionBootstrap regionBootstrap;
+    private BackgroundPowerSaver backgroundPowerSaver;
+    private ArrayList<BeaconStateNotifier> stateNotifiers;
     private RangeNotifierImpl rangeNotifier;
 
+    public BleTrackerService() {
+
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
 
     /**
      * Creates a service which operates in background
      * Do not change the order of the calls in this constructor without knowing what you are doing!
-     * @param context app context
-     * @param stateNotifier notification callback
+     * @param cispaConnection the connection to cispa
+     * @param stateNotifiers notification callbacks
      */
-    public BeaconService(Context context, RemoteConnection cispaConnection, BeaconStateNotifier stateNotifier) {
-        this.context = context;
+    public void createBackgroundService(RemoteConnection cispaConnection, ArrayList<BeaconStateNotifier> stateNotifiers) {
         this.cispaConnection = cispaConnection;
-        this.stateNotifier = stateNotifier;
-        this.rangeNotifier = new RangeNotifierImpl(context, stateNotifier, cispaConnection);
+        this.stateNotifiers = stateNotifiers;
+        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers, cispaConnection);
 
-        beaconManager = BeaconManager.getInstanceForApplication(context);
+        beaconManager = BeaconManager.getInstanceForApplication(this);
 
-        backgroundPowerSaver = new BackgroundPowerSaver(context);
+        backgroundPowerSaver = new BackgroundPowerSaver(this);
 
         beaconManager.addRangeNotifier(rangeNotifier);
 
         // Set the Layout of the beacons to which are we listening to
         LayoutManager.setAllLayouts(beaconManager);
-
-        regionBootstrap = new RegionBootstrap(this, region);
     }
 
     /**
      * Creates a service which also operates in background but will never go asleep
      * Do not change the order of the calls in this constructor without knowing what you are doing!
-     * @param context app context
-     * @param stateNotifier notification callback
+     * @param cispaConnection the connection to cispa
+     * @param stateNotifiers notification callback
      * @param notification a notification shown if the service is running
      */
-    public BeaconService(Context context, RemoteConnection cispaConnection, BeaconStateNotifier stateNotifier, Notification notification) {
-        this.context = context;
+    public void createForegroundService(RemoteConnection cispaConnection, ArrayList<BeaconStateNotifier> stateNotifiers, Notification notification) {
         this.cispaConnection = cispaConnection;
-        this.stateNotifier = stateNotifier;
-        this.rangeNotifier = new RangeNotifierImpl(context, stateNotifier, cispaConnection);
+        this.stateNotifiers = stateNotifiers;
+        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers, cispaConnection);
 
-        beaconManager = BeaconManager.getInstanceForApplication(context);
+        beaconManager = BeaconManager.getInstanceForApplication(this);
 
+        beaconManager.disableForegroundServiceScanning();
         beaconManager.enableForegroundServiceScanning(notification, 456);
         beaconManager.setEnableScheduledScanJobs(false);
         beaconManager.setBackgroundBetweenScanPeriod(0);
@@ -72,23 +78,17 @@ public final class BeaconService implements BootstrapNotifier {
 
         backgroundPowerSaver = null;
 
+        //TODO: remove debug code before release
+        TimedBeaconSimulator simulator = new TimedBeaconSimulator();
+        simulator.USE_SIMULATED_BEACONS = true;
+        BeaconManager.setBeaconSimulator(simulator);
+        simulator = ((TimedBeaconSimulator) BeaconManager.getBeaconSimulator());
+        simulator.createTimedSimulatedBeacons();
+        beaconManager.setDebug(true);
         beaconManager.addRangeNotifier(rangeNotifier);
 
         // Set the Layout of the beacons to which are we listening to
         LayoutManager.setAllLayouts(beaconManager);
-
-        regionBootstrap = new RegionBootstrap(this, region);
-    }
-
-    /**
-     * Called by the BeaconManager to get the context of Service or Activity.
-     * This method is implemented by Service or Activity.
-     * You generally should not override it.
-     * @return the application Context
-     */
-    @Override
-    public Context getApplicationContext() {
-        return context;
     }
 
     /**
@@ -105,7 +105,9 @@ public final class BeaconService implements BootstrapNotifier {
         } catch (RemoteException e) {
             Log.e(TAG, e.getMessage(), e);
         }
-        stateNotifier.onBeaconNearby();
+        for (BeaconStateNotifier stateNotifier : stateNotifiers) {
+            stateNotifier.onBeaconNearby();
+        }
     }
 
     /**
@@ -133,8 +135,23 @@ public final class BeaconService implements BootstrapNotifier {
         // Don't care
     }
 
+    public boolean disableMonitoring() {
+        if (regionBootstrap != null) {
+            regionBootstrap.disable();
+            regionBootstrap = null;
+            return true;
+        }
+        return false;
+    }
+    public void enableMonitoring() {
+        regionBootstrap = new RegionBootstrap(this, region);
+    }
 
-    public void setRemoteConnection(RemoteConnection connection) {
-        rangeNotifier.setRemoteConnection(connection);
+    public boolean isMonitoring() {
+        return regionBootstrap != null;
+    }
+
+    public void addRemoteConnection(RemoteConnection connection) {
+        rangeNotifier.addRemoteConnection(connection);
     }
 }

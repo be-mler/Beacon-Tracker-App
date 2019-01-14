@@ -1,5 +1,6 @@
 package saarland.cispa.bletrackerlib;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -8,28 +9,27 @@ import android.content.Intent;
 import android.location.LocationManager;
 import android.provider.Settings;
 
+import java.util.ArrayList;
+
 import androidx.appcompat.app.AlertDialog;
-import saarland.cispa.bletrackerlib.exceptions.ServiceAlreadyExistsException;
+import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
-import saarland.cispa.bletrackerlib.service.BeaconService;
+import saarland.cispa.bletrackerlib.service.BleTrackerService;
 import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
 
 public class BleTracker {
 
-    private static boolean serviceExists = false;
-    private final Context context;
-    private BeaconService service;
-    private final BeaconStateNotifier notifier;
+    private Context context;
+    private BleTrackerService service;
+    private final ArrayList<BeaconStateNotifier> notifiers = new ArrayList<>();
     private final RemoteConnection cispaConnection;
 
     /**
      * Creates the beacon service with the specified operation mode
      * @param context The application context
-     * @param notifier Callback to get beacons
      */
-    public BleTracker(Context context, boolean sendToCispa, BeaconStateNotifier notifier) {
-        this.context = context;
-        this.notifier = notifier;
+    public BleTracker(Context context, boolean sendToCispa) {
+        service = (BleTrackerService) context.getApplicationContext();
         if (sendToCispa) {
             cispaConnection = new RemoteConnection("http://192.168.122.21:5000/api/beacon", context, true);
         } else {
@@ -38,11 +38,19 @@ public class BleTracker {
     }
 
     /**
-     * Set a custom RESTful API connection
+     * Adds a notifier callback
+     * @param notifier the callback
+     */
+    public void addNotifier(BeaconStateNotifier notifier) {
+        notifiers.add(notifier);
+    }
+
+    /**
+     * Add a custom RESTful API connection
      * @param connection a remote connection to a RESTful endpoint
      */
-    public void setRemoteConnection(RemoteConnection connection) {
-        service.setRemoteConnection(connection);
+    public void addRemoteConnection(RemoteConnection connection) {
+        service.addRemoteConnection(connection);
     }
 
     /**
@@ -54,38 +62,53 @@ public class BleTracker {
     }
 
     /**
-     * Creates a background service which
+     * Creates a background service which operates in the background and gets called from time to time by the system
      * This causes low battery drain but also the refresh rate is low
-     * @throws ServiceAlreadyExistsException if you try to create more than one ble service
+     * @throws OtherServiceStillRunningException if an old service is still running. Stop old service first before creating a new one
      */
-    public void startBackgroundService() throws ServiceAlreadyExistsException {
-        if (!serviceExists) {
-            showDialogIfGpsIsOff();
-            showDialogIfBluetoothIsOff();
-            service = new BeaconService(context, cispaConnection, notifier);
-            serviceExists = true;
-        } else {
-            throw new ServiceAlreadyExistsException();
+    public void createBackgroundService() throws OtherServiceStillRunningException {
+        if (isRunning()) {
+            throw new OtherServiceStillRunningException();
         }
+        service.createBackgroundService(cispaConnection, notifiers);
     }
 
     /**
      * Creates a service which also operates in background but will never go asleep thus your app stays in foreground
      * This causes huge battery drain but also gives a very good refresh rate
      * @param foregroundNotification this is needed because we need to display a permanent notification if tracking should run as foreground service
-     *                               You can use ForegroundNotification.create() for this type of notification
-     * @throws ServiceAlreadyExistsException if you try to create more than one ble service
+     *                               You can use ForegroundNotification.parse() for this type of notification
+     * @throws OtherServiceStillRunningException if an old service is still running. Stop old service first before creating a new one
      */
-    public void startForegroundService(Notification foregroundNotification) throws ServiceAlreadyExistsException {
-        if (!serviceExists) {
-            showDialogIfGpsIsOff();
-            showDialogIfBluetoothIsOff();
-
-            service = new BeaconService(context, cispaConnection, notifier, foregroundNotification);
-            serviceExists = true;
-        } else {
-            throw new ServiceAlreadyExistsException();
+    public void createForegroundService(Notification foregroundNotification) throws OtherServiceStillRunningException {
+        if (isRunning()) {
+            throw new OtherServiceStillRunningException();
         }
+        service.createForegroundService(cispaConnection, notifiers, foregroundNotification);
+    }
+
+    /**
+     * Starts the service
+     */
+    public void start() {
+        showDialogIfGpsIsOff();
+        showDialogIfBluetoothIsOff();
+        service.enableMonitoring();
+    }
+
+    /**
+     * Stops the service
+     */
+    public void stop() {
+        service.disableMonitoring();
+    }
+
+    /**
+     * Indicates if the services is running
+     * @return true if service is running
+     */
+    public boolean isRunning() {
+        return service.isMonitoring();
     }
 
     /**
@@ -107,12 +130,13 @@ public class BleTracker {
 
                 @Override
                 public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    showAppFunctionallityLimititWithout(R.string.functionality_limited_gps);
+                    showAppFunctionalityLimitedWithout(R.string.functionality_limited_gps);
                 }
             });
             dialog.show();
         }
     }
+
     /**
      * Open a dialog and explain the user to turn on Bluetooth
      */
@@ -131,7 +155,7 @@ public class BleTracker {
                 dialog.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        showAppFunctionallityLimititWithout(R.string.functionality_limited_bluetooth);
+                        showAppFunctionalityLimitedWithout(R.string.functionality_limited_bluetooth);
                     }
                 });
                 dialog.show();
@@ -139,7 +163,7 @@ public class BleTracker {
         }
     }
 
-    private void showAppFunctionallityLimititWithout(int message) {
+    private void showAppFunctionalityLimitedWithout(int message) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         dialog.setMessage(message);
         dialog.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -187,5 +211,10 @@ public class BleTracker {
         return gps_enabled; //&& network_enabled;
     }
 
-
+    public void setContext(Activity activityContext) {
+        this.context = activityContext;
+        if (context != null) {
+            service = (BleTrackerService) context.getApplicationContext();
+        }
+    }
 }

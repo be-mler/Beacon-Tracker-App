@@ -15,4 +15,17 @@
     <color name="introStorage">#fb8c00</color>
 
     <color name="introFinish">#43a047</color>
+
+    <color name="scanningGreen">#43a047</color>
+    <color name="scanningRed">#e53935</color>
+
+    <color name="ibeaconBackground">#ffffff</color>
+    <color name="eddystoneUidBackground">#ffffff</color>
+    <color name="eddystoneUrlBackground">#ffffff</color>
+    <color name="ruuvitagBackground">#ffffff</color>
+
+    <color name="iconColors">#000000</color>
+    <color name="cardPropertyColor">#000000</color>
+    <color name="cardTitleColor">#000000</color>
+    <color name="cardSubtitleColor">#000000</color>
 </resources>

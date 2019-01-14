@@ -12,11 +12,11 @@ public class ForegroundNotification {
 
     public static final String NOTIFICATION_FOREGROUND_CHANNEL_ID = "NOTIFICATION_FOREGROUND_CHANNEL_ID";
 
-    public static Notification create(Context context, int icon, String channelId) {
+    public static Notification create(Context context, int icon, Class activityToStart) {
         Notification.Builder builder = new Notification.Builder(context);
         builder.setSmallIcon(icon);
         builder.setContentTitle("Scanning for Beacons");
-        Intent intent = new Intent(context, context.getClass());
+        Intent intent = new Intent(context, activityToStart);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(NOTIFICATION_FOREGROUND_CHANNEL_ID,
@@ -26,7 +26,7 @@ public class ForegroundNotification {
             notificationManager.createNotificationChannel(channel);
             builder.setChannelId(channel.getId());
         }
-        Notification notification = builder.build();
-        return notification;
+        builder.setContentIntent(pendingIntent);
+        return builder.build();
     }
 }
