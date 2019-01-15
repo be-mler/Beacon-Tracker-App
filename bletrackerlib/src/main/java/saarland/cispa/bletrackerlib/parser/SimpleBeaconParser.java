@@ -102,7 +102,7 @@ public class SimpleBeaconParser {
         if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (isLocationFresh(location) && isLocationAccurate(location)) {
-                simpleBeacon.location = new SimpleBeacon.Location(location.getLongitude(), location.getLatitude());
+                simpleBeacon.location = new SimpleBeacon.Location(location.getLongitude(), location.getLatitude(),location.getAccuracy());
             }
         }
     }

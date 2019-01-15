@@ -11,14 +11,20 @@ public class SimpleBeacon {
          * The locations latitude
          */
         public double locationLat;
+        /**
+         * The locations Radius in Meters
+         */
+        public double locationRadius;
+
 
         /**
          * @param locationLong The locations longitude
          * @param locationLat The locations latitude
          */
-        public Location(double locationLong, double locationLat) {
+        public Location(double locationLong, double locationLat , double locationRadius) {
             this.locationLong = locationLong;
             this.locationLat = locationLat;
+            this.locationRadius = locationRadius;
         }
     }
 
