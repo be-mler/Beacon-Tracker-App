@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initTracker() {
-        bleTracker = new BleTracker(this, false);
+        bleTracker = new BleTracker(this, true);
         final FloatingActionButton fab = findViewById(R.id.fab);
         final Animation animation = new RotateAnimation(0.0f, 360.0f,
                 Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,0.5f);

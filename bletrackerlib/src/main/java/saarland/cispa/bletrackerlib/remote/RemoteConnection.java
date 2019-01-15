@@ -40,7 +40,7 @@ public class RemoteConnection {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
+
                         SimpleBeacon[] rcvBeacons = new Gson().fromJson(response, SimpleBeacon[].class);
                         receiver.onBeaconReceive(rcvBeacons);
                     }
@@ -59,7 +59,7 @@ public class RemoteConnection {
     {
         JSONObject beaconAsJson = null;
         try {
-            beaconAsJson = new JSONObject(new Gson().toJson(simpleBeacon));
+            beaconAsJson = new JSONObject(new Gson().toJson(new RemoteBeaconObject(simpleBeacon)));
         } catch (JSONException e) {
             e.printStackTrace();
         }
