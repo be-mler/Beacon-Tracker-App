@@ -1,6 +1,7 @@
 package saarland.cispa.bletrackerlib.remote;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
+import saarland.cispa.bletrackerlib.data.SimpleBeaconLayouts;
 
 public class RemoteBeaconObject {
 
@@ -56,7 +57,57 @@ public class RemoteBeaconObject {
     //Empty Constructor for Deserialization (not sure if this is required in java)
     public RemoteBeaconObject(){};
     
-    
+    public SimpleBeacon GetSimpleBeacon()
+    {
+        SimpleBeacon simpleBeacon = new SimpleBeacon();
+        simpleBeacon.beaconType = this.BeaconType;
+        simpleBeacon.timestamp = this.DiscoveryTime;
+
+
+        if(this.LocationLat != 0 && LocationLat != 0) {
+            simpleBeacon.location = new SimpleBeacon.Location(this.LocationLong,this.LocationLat,this.LocationRadius);
+        }
+
+        //UNUSED?
+        //Our Currently unused
+        //this.Information
+
+        //Data by EveryBeaon
+        simpleBeacon.distance = this.Distance ;
+        simpleBeacon.signalStrength = this.SignalStrength;
+        simpleBeacon.transmitPower = this.TransmitterPower;
+        simpleBeacon.manufacturer = this.Manufacturer ;
+        simpleBeacon.bluetoothAddress = this.BluetoothAddress ;
+        simpleBeacon.bluetoothName = this.BluetoothName ;
+
+
+        //AltBeacon / iBeacon
+        if(this.BeaconType.equals(SimpleBeaconLayouts.IBEACON_LAYOUT.name()) || this.BeaconType.equals(SimpleBeaconLayouts.ALTBEACON_LAYOUT.name())) {
+            simpleBeacon.altbeaconIBeaconData = new SimpleBeacon.AltbeaconIBeaconData(this.UUID ,this.Major,this.Minor);
+
+        }
+        //Eddystone
+        if(this.BeaconType.equals(SimpleBeaconLayouts.EDDYSTONE_UID_LAYOUT.name())) {
+            simpleBeacon.eddystoneUidData = new SimpleBeacon.EddystoneUID(this.NamespaceID,this.InstanceID);
+
+        }
+
+        //All Eddystones??
+        simpleBeacon.telemetry = new SimpleBeacon.Telemetry(this.TelemetryVersion,this.BatterMilliVolts,this.Temperature
+        ,this.PduCount,this.Uptime);
+
+
+
+        if(this.BeaconType.equals(SimpleBeaconLayouts.EDDYSTONE_URL_LAYOUT.name())) {
+             simpleBeacon.eddystoneUrlData = new SimpleBeacon.EddystoneURL(this.Url);
+        }
+
+        //RuuviTag
+        if(this.BeaconType.equals(SimpleBeaconLayouts.RUUVI_LAYOUT.name())) {
+            simpleBeacon.ruuvi = new SimpleBeacon.Ruuvi(this.Humidity,this.AirPressure,this.Temperature);
+        }
+        return simpleBeacon;
+    }
     
     public RemoteBeaconObject(SimpleBeacon simpleBeacon)
     {

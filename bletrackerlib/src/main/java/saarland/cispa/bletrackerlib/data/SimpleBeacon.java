@@ -102,24 +102,24 @@ public class SimpleBeacon {
         /**
          * The air humidity in %
          */
-        public int humidity;
+        public double humidity;
 
         /**
          * The airPressure in hPa
          */
-        public int airPressure;
+        public double airPressure;
 
         /**
          * The temperature in °C
          */
-        public int temperature;
+        public double temperature;
 
         /**
          * @param humidity The air humidity in %
          * @param airPressure The airPressure in hPa
          * @param temperature The temperature in °C
          */
-        public Ruuvi(int humidity, int airPressure, int temperature) {
+        public Ruuvi(double humidity, double airPressure, double temperature) {
             this.humidity = humidity;
             this.airPressure = airPressure;
             this.temperature = temperature;

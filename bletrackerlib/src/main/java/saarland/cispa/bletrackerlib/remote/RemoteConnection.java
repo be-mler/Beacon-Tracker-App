@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
@@ -41,8 +42,16 @@ public class RemoteConnection {
                     @Override
                     public void onResponse(String response) {
 
-                        SimpleBeacon[] rcvBeacons = new Gson().fromJson(response, SimpleBeacon[].class);
-                        receiver.onBeaconReceive(rcvBeacons);
+                        RemoteBeaconObject[] rcvBeacons = new Gson().fromJson(response, RemoteBeaconObject[].class);
+                        LinkedList<SimpleBeacon> rcConvert = new LinkedList<>();
+                        for (RemoteBeaconObject rmt: rcvBeacons
+                             ) {
+                            rcConvert.add(rmt.GetSimpleBeacon());
+
+                        }
+                        SimpleBeacon[] parsedbeacons = new SimpleBeacon[rcConvert.size()];
+                        parsedbeacons = rcConvert.toArray(parsedbeacons);
+                        receiver.onBeaconReceive(parsedbeacons);
                     }
                 }, new Response.ErrorListener() {
             @Override
