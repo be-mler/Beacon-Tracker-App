@@ -35,9 +35,10 @@ public class RemoteConnection {
         this.sendOnlyWithGpsCoords = sendOnlyWithGpsCoords;
     }
 
-    public void requestBeacons(final RemoteReceiver receiver)
+    public void requestBeacons(final RemoteReceiver receiver,int confirmcount,double longS,double longE,double latS,double latE)
     {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+        String apiUrl = String.format("%s/%d/%f/%f/%f/%f", url, confirmcount,longS,longE,latS,latE);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, apiUrl,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

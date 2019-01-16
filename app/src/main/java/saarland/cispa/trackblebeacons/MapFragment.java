@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
+import saarland.cispa.bletrackerlib.remote.RemoteReceiver;
 
 public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemGestureListener {
 
@@ -46,6 +48,8 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
     private static final String TAG = "MapFragment";
 
     private View rootView = null;
+
+    private BleTracker bleTracker;
 
     @Nullable
     @Override
@@ -120,6 +124,7 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
                 } else {
                     btnFollowMe.setImageResource(R.drawable.ic_gps_fixed);
                 }
+                loadBeacons();
                 return true;
             }
 
@@ -130,6 +135,7 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
                 } else {
                     btnFollowMe.setImageResource(R.drawable.ic_gps_fixed);
                 }
+                loadBeacons();
                 return true;
             }
         });
@@ -138,41 +144,56 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
         //TODO: Make fancy icon + circle of range
         ArrayList<OverlayItem> items = new ArrayList<>();
         //Add Default marker, CISPA (NOT A BEACON)
-        items.add(new OverlayItem("Cispa", "Helmholtz Center for Information Security, ", new GeoPoint(49.25950, 7.05168)));
+        //items.add(new OverlayItem("Cispa", "Helmholtz Center for Information Security, ", new GeoPoint(49.25950, 7.05168)));
         beaconsOverlay= new ItemizedOverlayWithFocus<>(items,this,this.getActivity());
 
         beaconsOverlay.setFocusItemsOnTap(true);
 
         map.getOverlays().add(beaconsOverlay);
 
-//        loadBeacons();
+        loadBeacons();
 
     }
 
 
     private void addBeaconToOverlay(SimpleBeacon beacon)
     {
-        if (beacon.location != null && beacon.eddystoneUidData != null)
-        beaconsOverlay.addItem(new OverlayItem("Beacon", beacon.altbeaconIBeaconData.uuid,
-                new GeoPoint(beacon.location.locationLat, beacon.location.locationLong)));
+        if (beacon.location != null ){
+            for (OverlayItem x:beaconsOverlay.getDisplayedItems()
+                 ) {
+                if(x.getSnippet().equals(String.valueOf(beacon.id)))
+                    return;
+            }
+            beaconsOverlay.addItem(new OverlayItem("Beacon", String.valueOf(beacon.id),
+                    new GeoPoint(beacon.location.locationLat, beacon.location.locationLong)));
+        }
+
     }
 
-//    private void loadBeacons()
-//    {
-//        bleTracker.getCispaConnection().requestBeacons(new RemoteReceiver() {
-//            @Override
-//            public void onBeaconReceive(SimpleBeacon[] beacons) {
-//                for (SimpleBeacon beacon:beacons) {
-//                    addBeaconToOverlay(beacon);
-//                }
-//            }
-//
-//            @Override
-//            public void onBeaconReceiveError() {
-//                Log.d("API","Failed to receiver beacons from api");
-//            }
-//        });
-//    }
+    private void loadBeacons()
+    {
+        double latStart = this.map.getMapCenter().getLatitude() - (map.getLatitudeSpanDouble()/2.0);
+        double longStart = this.map.getMapCenter().getLongitude() - (map.getLongitudeSpanDouble()/2.0);
+
+
+        bleTracker = ((MainActivity)getActivity()).getBleTracker();
+        bleTracker.getCispaConnection().requestBeacons(new RemoteReceiver() {
+            @Override
+            public void onBeaconReceive(SimpleBeacon[] beacons) {
+                for (SimpleBeacon beacon:beacons) {
+                    /*TODO: Perform Check if already loaded this beacon */
+                    /*((MainActivity)getActivity()).simpleBeacons*/
+
+                    addBeaconToOverlay(beacon);
+                }
+            }
+
+            @Override
+            public void onBeaconReceiveError() {
+                Log.d("API","Failed to receiver beacons from api");
+            }
+        },0,longStart,longStart + map.getLatitudeSpanDouble(), latStart, latStart +map.getLatitudeSpanDouble());
+    }
 
     @Override
     public void onPause() {

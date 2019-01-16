@@ -59,7 +59,9 @@ public class RemoteBeaconObject {
     
     public SimpleBeacon GetSimpleBeacon()
     {
+
         SimpleBeacon simpleBeacon = new SimpleBeacon();
+        simpleBeacon.id = this.ID;
         simpleBeacon.beaconType = this.BeaconType;
         simpleBeacon.timestamp = this.DiscoveryTime;
 
@@ -80,6 +82,9 @@ public class RemoteBeaconObject {
         simpleBeacon.bluetoothAddress = this.BluetoothAddress ;
         simpleBeacon.bluetoothName = this.BluetoothName ;
 
+
+        if(this.BeaconType == null)
+            return simpleBeacon;
 
         //AltBeacon / iBeacon
         if(this.BeaconType.equals(SimpleBeaconLayouts.IBEACON_LAYOUT.name()) || this.BeaconType.equals(SimpleBeaconLayouts.ALTBEACON_LAYOUT.name())) {
