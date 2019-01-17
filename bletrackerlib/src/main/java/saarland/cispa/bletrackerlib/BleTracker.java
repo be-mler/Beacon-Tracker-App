@@ -31,7 +31,7 @@ public class BleTracker {
     public BleTracker(Context context, boolean sendToCispa) {
         service = (BleTrackerService) context.getApplicationContext();
         if (sendToCispa) {
-            cispaConnection = new RemoteConnection("http://192.168.122.21:5000/api/beacon", context, false);
+            cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon", context, false);
         } else {
             cispaConnection = null;
         }

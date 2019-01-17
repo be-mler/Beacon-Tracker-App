@@ -50,6 +50,7 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
     private View rootView = null;
 
     private BleTracker bleTracker;
+    private RemoteReceiver remoteReceiver;
 
     @Nullable
     @Override
@@ -61,12 +62,16 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        initRemoteReceiver();
         //Initialize map and set default location
+
         initMap();
     }
 
     private void initMap()
     {
+
         //ext 2 Lines recommended by OsmDroid
         Context ctx = this.getActivity().getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
@@ -170,14 +175,10 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
 
     }
 
-    private void loadBeacons()
+    private void initRemoteReceiver()
     {
-        double latStart = this.map.getMapCenter().getLatitude() - (map.getLatitudeSpanDouble()/2.0);
-        double longStart = this.map.getMapCenter().getLongitude() - (map.getLongitudeSpanDouble()/2.0);
-
-
         bleTracker = ((MainActivity)getActivity()).getBleTracker();
-        bleTracker.getCispaConnection().requestBeacons(new RemoteReceiver() {
+        remoteReceiver = new RemoteReceiver() {
             @Override
             public void onBeaconReceive(SimpleBeacon[] beacons) {
                 for (SimpleBeacon beacon:beacons) {
@@ -192,7 +193,15 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
             public void onBeaconReceiveError() {
                 Log.d("API","Failed to receiver beacons from api");
             }
-        },0,longStart,longStart + map.getLatitudeSpanDouble(), latStart, latStart +map.getLatitudeSpanDouble());
+        };
+    }
+
+    private void loadBeacons()
+    {
+        double latStart = this.map.getMapCenter().getLatitude() - (map.getLatitudeSpanDouble()/2.0);
+        double longStart = this.map.getMapCenter().getLongitude() - (map.getLongitudeSpanDouble()/2.0);
+
+        bleTracker.getCispaConnection().requestBeacons(remoteReceiver,0,longStart,longStart + map.getLatitudeSpanDouble(), latStart, latStart +map.getLatitudeSpanDouble());
     }
 
     @Override
