@@ -201,7 +201,7 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
         double latStart = this.map.getMapCenter().getLatitude() - (map.getLatitudeSpanDouble()/2.0);
         double longStart = this.map.getMapCenter().getLongitude() - (map.getLongitudeSpanDouble()/2.0);
 
-        bleTracker.getCispaConnection().requestBeacons(remoteReceiver,0,longStart,longStart + map.getLatitudeSpanDouble(), latStart, latStart +map.getLatitudeSpanDouble());
+        bleTracker.getCispaConnection().requestBeacons(remoteReceiver,longStart,longStart + map.getLatitudeSpanDouble(), latStart, latStart +map.getLatitudeSpanDouble());
     }
 
     @Override

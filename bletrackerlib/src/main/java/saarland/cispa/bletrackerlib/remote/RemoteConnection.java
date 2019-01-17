@@ -11,7 +11,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,9 +34,9 @@ public class RemoteConnection {
         this.sendOnlyWithGpsCoords = sendOnlyWithGpsCoords;
     }
 
-    public void requestBeacons(final RemoteReceiver receiver,int confirmcount,double longS,double longE,double latS,double latE)
+    public void requestBeacons(final RemoteReceiver receiver,double longS,double longE,double latS,double latE)
     {
-        String apiUrl = String.format("%s/%d/%f/%f/%f/%f", url, confirmcount,longS,longE,latS,latE);
+        String apiUrl = String.format("%s/%d/%f/%f/%f/%f", url, RemoteSettings.GetConfirmations(),longS,longE,latS,latE);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, apiUrl,
                 new Response.Listener<String>() {
                     @Override

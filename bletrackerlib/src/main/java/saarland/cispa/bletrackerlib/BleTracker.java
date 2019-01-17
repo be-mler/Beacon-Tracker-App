@@ -12,6 +12,7 @@ import android.provider.Settings;
 import java.util.ArrayList;
 
 import androidx.appcompat.app.AlertDialog;
+import saarland.cispa.bletrackerlib.remote.RemoteSettings;
 import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 import saarland.cispa.bletrackerlib.service.BleTrackerService;
@@ -30,6 +31,7 @@ public class BleTracker {
      */
     public BleTracker(Context context, boolean sendToCispa) {
         service = (BleTrackerService) context.getApplicationContext();
+        RemoteSettings.Init(context);
         if (sendToCispa) {
             cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon", context, false);
         } else {
