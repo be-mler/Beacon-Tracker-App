@@ -51,6 +51,8 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
 
     private BleTracker bleTracker;
     private RemoteReceiver remoteReceiver;
+    private boolean apiRequestRunning = false;
+
 
     @Nullable
     @Override
@@ -187,21 +189,29 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
 
                     addBeaconToOverlay(beacon);
                 }
+                apiRequestRunning = false;
             }
 
             @Override
             public void onBeaconReceiveError() {
+                apiRequestRunning = false;
                 Log.d("API","Failed to receiver beacons from api");
             }
         };
     }
 
+
+
     private void loadBeacons()
     {
+        if(apiRequestRunning)
+            return;
+        apiRequestRunning = true;
         double latStart = this.map.getMapCenter().getLatitude() - (map.getLatitudeSpanDouble()/2.0);
         double longStart = this.map.getMapCenter().getLongitude() - (map.getLongitudeSpanDouble()/2.0);
 
         bleTracker.getCispaConnection().requestBeacons(remoteReceiver,longStart,longStart + map.getLatitudeSpanDouble(), latStart, latStart +map.getLatitudeSpanDouble());
+
     }
 
     @Override
