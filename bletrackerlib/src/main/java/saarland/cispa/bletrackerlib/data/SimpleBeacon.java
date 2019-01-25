@@ -16,7 +16,6 @@ public class SimpleBeacon {
          */
         public double locationRadius;
 
-
         /**
          * @param locationLong The locations longitude
          * @param locationLat The locations latitude
@@ -207,6 +206,12 @@ public class SimpleBeacon {
      */
     public String timestamp;
 
+    /**
+     * This is not the regular hashcode of this beacon. If you want an hashCode of this beacon call hashCode();
+     */
+    public int hashcode;
+
+
     // This data is set accordingly which beacon we deal with. It is in relation to the beacon beaconType
     public Location location;
     public Telemetry telemetry;
@@ -239,4 +244,6 @@ public class SimpleBeacon {
         this.distance = distance;
         this.timestamp = timestamp;
     }
+
+
 }

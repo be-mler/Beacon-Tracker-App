@@ -33,10 +33,10 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
     private OnControlsOpen onControlsOpen;
     private Context context;
-    public static final DiffUtil.ItemCallback<SimpleBeacon> DIFF_CALLBACK = new DiffUtil.ItemCallback<SimpleBeacon>() {
+    private static final DiffUtil.ItemCallback<SimpleBeacon> DIFF_CALLBACK = new DiffUtil.ItemCallback<SimpleBeacon>() {
         @Override
         public boolean areItemsTheSame(@NonNull SimpleBeacon oldItem, @NonNull SimpleBeacon newItem) {
-            return oldItem.hashCode() == newItem.hashCode();
+            return oldItem.hashcode == newItem.hashcode;
         }
 
         @Override
@@ -93,32 +93,32 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
     static class BaseHolder extends RecyclerView.ViewHolder {
 
-        public Button visit_website_btn;
-        public Button ruuvi_visit_website_button;
-        public CardView card;
-        public TextView address;
-        public TextView distance;
-        public TextView manufacturer;
-        public TextView last_seen;
-        public TextView rssid;
-        public TextView tx;
+        Button visit_website_btn;
+        Button ruuvi_visit_website_button;
+        CardView card;
+        TextView address;
+        TextView distance;
+        TextView manufacturer;
+        TextView last_seen;
+        TextView rssid;
+        TextView tx;
 
-        public TextView battery;
-        public TextView temperature;
-        public TextView uptime;
-        public TextView pdu_sent;
+        TextView battery;
+        TextView temperature;
+        TextView uptime;
+        TextView pdu_sent;
 
-        public LinearLayout battery_container;
-        public LinearLayout temperature_container;
-        public LinearLayout uptime_container;
-        public LinearLayout pdu_sent_container;
+        LinearLayout battery_container;
+        LinearLayout temperature_container;
+        LinearLayout uptime_container;
+        LinearLayout pdu_sent_container;
 
-        public ConstraintLayout ibeacon_altbeacon_item;
-        public ConstraintLayout eddystone_uid_item;
-        public ConstraintLayout eddystone_url_item;
-        public ConstraintLayout ruuvitag_item;
+        ConstraintLayout ibeacon_altbeacon_item;
+        ConstraintLayout eddystone_uid_item;
+        ConstraintLayout eddystone_url_item;
+        ConstraintLayout ruuvitag_item;
 
-        public BaseHolder(@NonNull View itemView) {
+        BaseHolder(@NonNull View itemView) {
             super(itemView);
 
             visit_website_btn = itemView.findViewById(R.id.visit_website_btn);
@@ -201,7 +201,7 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
             pdu_sent_container.setVisibility(visibility);
         }
 
-        public void hideAllLayouts() {
+        void hideAllLayouts() {
             ibeacon_altbeacon_item.setVisibility(View.GONE);
             eddystone_uid_item.setVisibility(View.GONE);
             eddystone_url_item.setVisibility(View.GONE);
@@ -215,13 +215,13 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
     static class AltBeaconIbeaconHolder extends BaseHolder {
 
-        public TextView beacon_type;
-        public TextView url;
-        public TextView proximity_uuid;
-        public TextView major;
-        public TextView minor;
+        TextView beacon_type;
+        TextView url;
+        TextView proximity_uuid;
+        TextView major;
+        TextView minor;
 
-        public AltBeaconIbeaconHolder(@NonNull View itemView) {
+        AltBeaconIbeaconHolder(@NonNull View itemView) {
             super(itemView);
 
             beacon_type = itemView.findViewById(R.id.beacon_type);
@@ -254,11 +254,11 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
     static class EddystoneUidHolder extends BaseHolder {
 
-        public TextView beacon_type;
-        public TextView namespace_id;
-        public TextView instance_id;
+        TextView beacon_type;
+        TextView namespace_id;
+        TextView instance_id;
 
-        public EddystoneUidHolder(@NonNull View itemView) {
+        EddystoneUidHolder(@NonNull View itemView) {
             super(itemView);
 
             beacon_type = itemView.findViewById(R.id.beacon_type);
@@ -289,10 +289,10 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
     static class EddystoneUrlHolder extends BaseHolder {
 
-        public TextView beacon_type;
-        public TextView url;
+        TextView beacon_type;
+        TextView url;
 
-        public EddystoneUrlHolder(@NonNull View itemView) {
+        EddystoneUrlHolder(@NonNull View itemView) {
             super(itemView);
 
             beacon_type = itemView.findViewById(R.id.beacon_type);
@@ -320,13 +320,13 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
     static class RuuviTagHolder extends BaseHolder {
 
-        public TextView beacon_type;
-        public TextView ruuvi_url;
-        public TextView ruuvi_air_pressure;
-        public TextView ruuvi_temperature;
-        public TextView ruuvi_humidity;
+        TextView beacon_type;
+        TextView ruuvi_url;
+        TextView ruuvi_air_pressure;
+        TextView ruuvi_temperature;
+        TextView ruuvi_humidity;
 
-        public RuuviTagHolder(@NonNull View itemView) {
+        RuuviTagHolder(@NonNull View itemView) {
             super(itemView);
 
             beacon_type = itemView.findViewById(R.id.beacon_type);

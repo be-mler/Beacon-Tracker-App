@@ -38,7 +38,7 @@ public class SimpleBeaconParser {
             SimpleBeacon simpleBeacon = new SimpleBeacon("", beacon.getRssi(), beacon.getTxPower(),
                     beacon.getManufacturer(), beacon.getBluetoothAddress(), beacon.getBluetoothName(),
                     beacon.getDistance(), DateParser.getUTCdatetimeAsString());
-
+            simpleBeacon.hashcode = beacon.hashCode();
             if (beacon.getServiceUuid() == 0xfeaa) {    //Eddystone Format
 
                 if (beacon.getExtraDataFields().size() >= 5) {
@@ -108,12 +108,18 @@ public class SimpleBeaconParser {
     }
 
     private boolean isLocationFresh(Location location) {
+        if (location == null) {
+            return false;
+        }
         long gpsTime = location.getTime();
         long systemTime = System.currentTimeMillis();
         return systemTime - gpsTime <= LOCATION_FRESH_TIMESPAN;
     }
 
     private boolean isLocationAccurate(Location location) {
+        if (location == null) {
+            return false;
+        }
         float accuracy = location.getAccuracy();
         return accuracy > 0 && accuracy <= LOCATION_ACCURAY;
     }
