@@ -57,8 +57,8 @@ public class ScanFragment extends Fragment {
 
             }
         });
-        // 5. set item animator to DefaultAnimator
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        // 5. disable annoying item refresh animation
+        recyclerView.setItemAnimator(null);
 
         adapter.submitList(beaconList);
 
@@ -86,7 +86,7 @@ public class ScanFragment extends Fragment {
         });
     }
 
-    public void showEmptyView(boolean show) {
+    private void showEmptyView(boolean show) {
         rootView.findViewById(R.id.empty_view).setVisibility(show ? View.VISIBLE : View.GONE);
         rootView.findViewById(R.id.beacons_rv).setVisibility(show ? View.GONE : View.VISIBLE);
     }
