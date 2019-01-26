@@ -1,7 +1,9 @@
 package saarland.cispa.trackblebeacons;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
@@ -19,35 +21,35 @@ public class IntroActivity extends AppIntro {
 
         // Slider Page 1
         SliderPage sliderPage1 = new SliderPage();
-        sliderPage1.setTitle("BLE Beacon Tracker");
-        sliderPage1.setDescription("We started a project to find out where Bluetooth Low Energy Beacons are tracking people in real live. We are happy that you support us.");
+        sliderPage1.setTitle(getString(R.string.intro1_title));
+        sliderPage1.setDescription(getString(R.string.intro1_desc));
         sliderPage1.setImageDrawable(R.drawable.ic_intro_speaker_phone);
         sliderPage1.setBgColor(ResourcesCompat.getColor(getResources(), R.color.primaryColor, null));
 
         // Slider Page 2
         SliderPage sliderPage2 = new SliderPage();
-        sliderPage2.setTitle("Bluetooth Access");
-        sliderPage2.setDescription("That we can track BLE Beacons we need to turn Bluetooth on.");
+        sliderPage2.setTitle(getString(R.string.intro2_title));
+        sliderPage2.setDescription(getString(R.string.intro2_desc));
         sliderPage2.setImageDrawable(R.drawable.ic_intro_bluetooth_searching);
         sliderPage2.setBgColor(ResourcesCompat.getColor(getResources(), R.color.introBluetooth, null));
         // Slider Page 3
         SliderPage sliderPage3 = new SliderPage();
-        sliderPage3.setTitle("GPS Access");
-        sliderPage3.setDescription("We also need location access to save the information where you have found a beacon. We only turn on location if you have found a tracker to save battery.");
+        sliderPage3.setTitle(getString(R.string.intro3_title));
+        sliderPage3.setDescription(getString(R.string.intro3_desc));
         sliderPage3.setImageDrawable(R.drawable.ic_intro_location_on);
         sliderPage3.setBgColor(ResourcesCompat.getColor(getResources(), R.color.introLocation, null));
 
         // Slider Page 4
         SliderPage sliderPage4 = new SliderPage();
-        sliderPage4.setTitle("Storage Access");
-        sliderPage4.setDescription("At last we need storage access to save the map data locally which is good for your mobile data.");
+        sliderPage4.setTitle(getString(R.string.intro4_title));
+        sliderPage4.setDescription(getString(R.string.intro4_desc));
         sliderPage4.setImageDrawable(R.drawable.ic_intro_sd_storage);
         sliderPage4.setBgColor(ResourcesCompat.getColor(getResources(), R.color.introStorage, null));
 
         // Slider Page 5
         SliderPage sliderPage5 = new SliderPage();
-        sliderPage5.setTitle("Finished");
-        sliderPage5.setDescription("If you want you can specify the app behavior in settings.");
+        sliderPage5.setTitle(getString(R.string.intro5_title));
+        sliderPage5.setDescription(getString(R.string.intro5_desc));
         sliderPage5.setImageDrawable(R.drawable.ic_intro_settings);
         sliderPage5.setBgColor(ResourcesCompat.getColor(getResources(), R.color.introFinish, null));
 
@@ -69,6 +71,17 @@ public class IntroActivity extends AppIntro {
     @Override
     public void onDonePressed(Fragment fragment) {
         super.onDonePressed(fragment);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+        //  Make a new Preferences editor
+        SharedPreferences.Editor e = sharedPreferences.edit();
+
+        //  Edit preference to make it false because we don't want this to run again
+        e.putBoolean(MainActivity.FIRST_START_PROPERTY_KEY, false);
+
+        //  Apply changes
+        e.apply();
+
         finish();
     }
 }

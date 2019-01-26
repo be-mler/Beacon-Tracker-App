@@ -14,8 +14,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -42,22 +40,22 @@ public class MainActivity extends AppCompatActivity {
     private BleTracker bleTracker;
 
     private boolean haveDetectedBeaconsSinceBoot = false;
-    private String DEFAULT_NOTIFICATION_CHANNEL_ID = "DEFAULT_NOTIFICATION_CHANNEL_ID";
-    private final String FIRST_START_PROPERTY_KEY = "firstStart";
+    private static final String DEFAULT_NOTIFICATION_CHANNEL_ID = "DEFAULT_NOTIFICATION_CHANNEL_ID";
+    public static final String FIRST_START_PROPERTY_KEY = "firstStart";
     private PagerAdapter pagerAdapter;
+    private CustomViewPager viewPager;
 
-    private CustomViewPager mViewPager;
+
     private void showIntroAtFirstStart() {
         //  Declare a new thread to do a preference check
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 //  Initialize SharedPreferences
-                SharedPreferences getPrefs = PreferenceManager
-                        .getDefaultSharedPreferences(getBaseContext());
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
                 //  Create a new boolean and preference and set it to true
-                boolean isFirstStart = getPrefs.getBoolean(FIRST_START_PROPERTY_KEY, true);
+                boolean isFirstStart = sharedPreferences.getBoolean(FIRST_START_PROPERTY_KEY, true);
 
                 //  If the activity has never started before...
                 if (isFirstStart) {
@@ -70,15 +68,6 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(i);
                         }
                     });
-
-                    //  Make a new Preferences editor
-                    SharedPreferences.Editor e = getPrefs.edit();
-
-                    //  Edit preference to make it false because we don't want this to run again
-                    e.putBoolean("firstStart", false);
-
-                    //  Apply changes
-                    e.apply();
                 }
             }
         });
@@ -103,14 +92,14 @@ public class MainActivity extends AppCompatActivity {
         pagerAdapter = new PagerAdapter(getSupportFragmentManager(), 2);
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container);
-        mViewPager.setAdapter(pagerAdapter);
-        mViewPager.setSwipingEnabled(false);
+        viewPager = findViewById(R.id.container);
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setSwipingEnabled(false);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
 
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 
         initTracker();
     }
@@ -118,17 +107,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void initTracker() {
         bleTracker = new BleTracker(this, true);
-        final FloatingActionButton fab = findViewById(R.id.fab);
-        final Animation animation = new RotateAnimation(0.0f, 360.0f,
-                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,0.5f);
-        animation.setRepeatCount(-1);
-        animation.setDuration(2000);
-        if (bleTracker.isRunning()) {
-            fab.setImageDrawable(getDrawable(R.drawable.ic_stop));
-            fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningRed)));
-            //fab.setAnimation(animation);
-        }
 
+//        final Animation animation = new RotateAnimation(0.0f, 360.0f,
+//                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,0.5f);
+//        animation.setRepeatCount(-1);
+//        animation.setDuration(2000);
+        final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,13 +124,13 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     bleTracker.start();
-                    Snackbar.make(view, "Started scanning for beacons", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(view, getString(R.string.snackbar_started_scanning), Snackbar.LENGTH_LONG).show();
                     fab.setImageDrawable(getDrawable(R.drawable.ic_stop));
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningRed)));
                     //fab.setAnimation(animation);
                 } else {
                     bleTracker.stop();
-                    Snackbar.make(view, "Stopped scanning for beacons", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(view, getString(R.string.snackbar_stopped_scanning), Snackbar.LENGTH_LONG).show();
                     fab.setImageDrawable(getDrawable(R.drawable.ic_play_arrow));
                     fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningGreen)));
                     //fab.setAnimation(null);
@@ -211,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, DEFAULT_NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle(getTitle())
-                .setContentText("Beacon nearby!")
+                .setContentText(getString(R.string.notification_beacon_nearby_text))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 // Set the intent that will fire when the user taps the notification
                 .setContentIntent(pendingIntent)
@@ -254,6 +238,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         bleTracker.setContext(this);
+
+        final FloatingActionButton fab = findViewById(R.id.fab);
+        if (bleTracker.isRunning()) {
+            fab.setImageDrawable(getDrawable(R.drawable.ic_stop));
+            fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningRed)));
+            //fab.setAnimation(animation);
+        } else {
+            fab.setImageDrawable(getDrawable(R.drawable.ic_play_arrow));
+            fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningGreen)));
+        }
     }
 
     public BleTracker getBleTracker() {

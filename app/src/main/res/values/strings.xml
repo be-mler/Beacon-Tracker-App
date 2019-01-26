@@ -41,5 +41,18 @@
 
     <string name="empty_state_content">To start scanning for nearby beacons just press the scan button. You\'ll see the scan results appear here.</string>
     <string name="no_scanned_beacons_yet">No scanned beacons yet!</string>
+    <string name="intro1_title">BLE Beacon Tracker</string>
+    <string name="intro1_desc">We started a project to find out where Bluetooth Low Energy Beacons are tracking people in real live. We are happy that you support us.</string>
+    <string name="intro2_title">Bluetooth Access</string>
+    <string name="intro2_desc">That we can track BLE Beacons we need to turn Bluetooth on.</string>
+    <string name="intro3_title">GPS Access</string>
+    <string name="intro3_desc">We also need location access to save the information where you have found a beacon. We only turn on location if you have found a tracker to save battery.</string>
+    <string name="intro4_title">Storage Access</string>
+    <string name="intro4_desc">At last we need storage access to save the map data locally which is good for your mobile data.</string>
+    <string name="intro5_title">Finished</string>
+    <string name="intro5_desc">If you want you can specify the app behavior in settings.</string>
+    <string name="notification_beacon_nearby_text">Beacon nearby!</string>
+    <string name="snackbar_started_scanning">Started scanning for beacons</string>
+    <string name="snackbar_stopped_scanning">Stopped scanning for beacons</string>
 
 </resources>
