@@ -180,8 +180,11 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
                 }
             });
             address.setText(beacon.bluetoothAddress);
-            distance.setText(String.format(Locale.getDefault(), "%.2f", beacon.distance));
-
+            if (beacon.distance >= 0) {
+                distance.setText(String.format(Locale.getDefault(), "%.2f", beacon.distance));
+            } else {
+                distance.setText(context.getString(R.string.no_distance_available));
+            }
             manufacturer.setText(String.format(Locale.getDefault(), "0x%04X", beacon.manufacturer));
 
             last_seen.setText(DateParser.makeDisplayDate(DateParser.utcToLocalDate(itemView.getContext() ,beacon.timestamp)));

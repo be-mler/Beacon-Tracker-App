@@ -30,7 +30,7 @@ import saarland.cispa.bletrackerlib.ServiceStateNotifier;
 import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
-import saarland.cispa.bletrackerlib.service.ForegroundNotification;
+import saarland.cispa.bletrackerlib.helper.ForegroundNotification;
 import saarland.cispa.trackblebeacons.helpers.CustomViewPager;
 
 

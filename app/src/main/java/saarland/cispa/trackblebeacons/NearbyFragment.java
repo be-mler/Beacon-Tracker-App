@@ -1,5 +1,10 @@
 package saarland.cispa.trackblebeacons;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +14,7 @@ import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +23,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
+import saarland.cispa.bletrackerlib.helper.LocationHelper;
 import saarland.cispa.bletrackerlib.remote.RemoteRequestReceiver;
+import saarland.cispa.trackblebeacons.helpers.DistanceCalculator;
+
+import static androidx.core.content.ContextCompat.checkSelfPermission;
 
 public class NearbyFragment extends Fragment {
     private View rootView = null;
@@ -84,9 +94,18 @@ public class NearbyFragment extends Fragment {
         RemoteRequestReceiver receiver = new RemoteRequestReceiver() {
             @Override
             public void onBeaconsReceived(ArrayList<SimpleBeacon> beacons) {
-                // show empty view if there are no beacons near
+                // remove all beacons without gps from list
+                ListIterator<SimpleBeacon> iterator = beacons.listIterator();
+                while (iterator.hasNext()) {
+                    SimpleBeacon beacon = iterator.next();
+                    if (beacon.location == null) {
+                        iterator.remove();
+                    } else {
+                        modifyDistance(beacon);
+                    }
+                }
+                // show empty view if there are no beacons in list
                 showEmptyView(beacons.size() == 0);
-
                 adapter.submitList(beacons);
             }
 
@@ -97,4 +116,20 @@ public class NearbyFragment extends Fragment {
         };
         bleTracker.getCispaConnection().addRemoteReceiver(receiver);
     }
+
+    private void modifyDistance(SimpleBeacon beacon) {
+        float distance = -1;
+        LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        if (checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (LocationHelper.isGpsOn(getContext()) && beacon.location != null) {
+                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (location != null) {
+                    distance = DistanceCalculator.distanceBetween(location.getLongitude(), location.getLatitude(),
+                            beacon.location.locationLong, beacon.location.locationLat);
+                }
+            }
+        }
+        beacon.distance = distance;
+    }
+
 }

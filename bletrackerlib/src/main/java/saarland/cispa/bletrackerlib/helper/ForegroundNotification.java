@@ -1,4 +1,4 @@
-package saarland.cispa.bletrackerlib.service;
+package saarland.cispa.bletrackerlib.helper;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -12,6 +12,13 @@ public class ForegroundNotification {
 
     public static final String NOTIFICATION_FOREGROUND_CHANNEL_ID = "NOTIFICATION_FOREGROUND_CHANNEL_ID";
 
+    /**
+     * Creates a permanent notification which is needed for forground scanning
+     * @param context the Context or Activity
+     * @param icon the icon to show in notification
+     * @param activityToStart the activity which should start by taping the notification
+     * @return a permanent notification
+     */
     public static Notification create(Context context, int icon, Class activityToStart) {
         Notification.Builder builder = new Notification.Builder(context);
         builder.setSmallIcon(icon);

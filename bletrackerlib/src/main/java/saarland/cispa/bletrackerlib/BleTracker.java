@@ -12,6 +12,8 @@ import android.provider.Settings;
 import java.util.ArrayList;
 
 import androidx.appcompat.app.AlertDialog;
+import saarland.cispa.bletrackerlib.helper.BluetoothHelper;
+import saarland.cispa.bletrackerlib.helper.LocationHelper;
 import saarland.cispa.bletrackerlib.remote.RemoteSettings;
 import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
@@ -112,11 +114,12 @@ public class BleTracker {
 
     /**
      * Starts the service and asks user to turn on bluetooth and GPS
+     * Service then will start even if bluetooth is turned off and will work after they are turned on later
      * @param activity The application activity. Here the message will be displayed to turn on location an bluetooth
      */
     public void start(Activity activity) {
-        showDialogIfGpsIsOff(activity);
-        showDialogIfBluetoothIsOff(activity);
+        LocationHelper.showDialogIfGpsIsOff(activity);
+        BluetoothHelper.showDialogIfBluetoothIsOff(activity);
         service.enableMonitoring();
         for (ServiceStateNotifier serviceNotifier : serviceNotifiers) {
             serviceNotifier.onStart();
@@ -125,6 +128,8 @@ public class BleTracker {
 
     /**
      * Tries to start the service even if GPS and bluetooth is not turned on
+     * This in normal case is not the best idea.
+     * Service then will start do work if bluetooth is turned on and gps too
      */
     public void startWithoutChecks() {
         service.enableMonitoring();
@@ -153,82 +158,9 @@ public class BleTracker {
     }
 
     /**
-     * Open a dialog and explain the user to turn on GPS and Network location
+     * Updates the base Activity. Should be called in every Activity.onResume()
+     * @param activity
      */
-    private void showDialogIfGpsIsOff(Activity activity) {
-        if(!isGpsOn(activity)) {
-            // notify user
-            AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
-            dialog.setMessage(R.string.gps_network_not_enabled);
-            dialog.setPositiveButton(R.string.open_location_settings, (paramDialogInterface, paramInt) -> {
-                Intent gpsOptionsIntet = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                activity.startActivity(gpsOptionsIntet);
-            });
-            dialog.setNegativeButton(activity.getString(R.string.cancel),
-                    (paramDialogInterface, paramInt) -> showAppFunctionalityLimitedWithout(activity, R.string.functionality_limited_gps));
-            dialog.show();
-        }
-    }
-
-    /**
-     * Open a dialog and explain the user to turn on Bluetooth
-     */
-    private void showDialogIfBluetoothIsOff(Activity activity) {
-        final BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
-        if (ba != null) {
-            if (!isBluetoothOn()) {
-                AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
-                dialog.setMessage(R.string.bluetooth_not_enabled);
-                dialog.setPositiveButton(R.string.enable, (dialog1, which) -> ba.enable());
-                dialog.setNegativeButton(activity.getString(R.string.cancel), (dialog12, which) -> showAppFunctionalityLimitedWithout(activity, R.string.functionality_limited_bluetooth));
-                dialog.show();
-            }
-        }
-    }
-
-    private void showAppFunctionalityLimitedWithout(Activity activity, int message) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
-        dialog.setMessage(message);
-        dialog.setNeutralButton(R.string.ok, (dialog1, which) -> {});
-        dialog.show();
-    }
-
-    /**
-     * Check if bluetooth is on
-     * @return return true if on
-     */
-    private boolean isBluetoothOn() {
-        BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
-        if (ba != null) {
-            return ba.isEnabled();
-        }
-        return false;
-    }
-
-    /**
-     * Check if gps is on and location mode high accuracy
-     * @return true if gps is on and location mode is high accuracy
-     */
-    private boolean isGpsOn(Activity activity) {
-        LocationManager lm = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-        boolean gps_enabled = false;
-        //TODO: What to do with devices which have no network provider (most devices without play services installed)
-        //boolean network_enabled = false;
-
-        try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch(Exception ex) {
-
-        }
-
-//        try {
-//            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-//        } catch(Exception ex) {
-//
-//        }
-        return gps_enabled; //&& network_enabled;
-    }
-
     public void updateActivity(Activity activity) {
         if (activity != null) {
             service = (BleTrackerService) activity.getApplicationContext();

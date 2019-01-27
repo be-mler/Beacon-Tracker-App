@@ -166,7 +166,7 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
 
     private void addBeaconToOverlay(SimpleBeacon beacon)
     {
-        if (beacon.location != null ){
+        if (beacon.location != null){
             for (OverlayItem x:beaconsOverlay.getDisplayedItems()) {
                 if(x.getSnippet().equals(String.valueOf(beacon.id))) {
                     return;
