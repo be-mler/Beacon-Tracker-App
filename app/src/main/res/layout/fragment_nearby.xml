@@ -2,10 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraintLayout3"
+    android:id="@+id/constraintLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ScanFragment">
+    tools:context=".NearbyFragment">
 
 <RelativeLayout
     android:layout_width="match_parent"
@@ -13,7 +13,7 @@
 
     <!-- Actual content -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/beacons_scan_rv"
+        android:id="@+id/beacons_nearby_rv"
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -27,7 +27,7 @@
 
     <!-- Empty view -->
     <RelativeLayout
-        android:id="@+id/empty_scan_view"
+        android:id="@+id/empty_nearby_view"
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -36,17 +36,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tint="@color/primaryColor"
-            app:srcCompat="@drawable/ic_track_changes_black_72dp"
+            app:srcCompat="@drawable/ic_map_black_72dp"
             android:layout_centerHorizontal="true"
-            android:id="@+id/error_scan_image" />
+            android:id="@+id/error_nearby_image" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/no_scanned_beacons_yet"
-            android:id="@+id/empty_state_scan_title"
+            android:text="@string/no_nearby_beacons_yet"
+            android:id="@+id/empty_state_nearby_title"
             android:textColor="@color/introStorage"
-            android:layout_below="@+id/error_scan_image"
+            android:layout_below="@+id/error_nearby_image"
             android:layout_centerHorizontal="true"
             android:layout_margin="@dimen/keyline_16"
             android:textSize="16sp" />
@@ -54,9 +54,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/empty_state_scan_content"
-            android:id="@+id/empty_state_scan_content"
-            android:layout_below="@+id/empty_state_scan_title"
+            android:text="@string/empty_state_nearby_content"
+            android:id="@+id/empty_state_nearby_content"
+            android:layout_below="@+id/empty_state_nearby_title"
             android:layout_centerHorizontal="true"
             android:textSize="14sp"
             android:textAlignment="center"

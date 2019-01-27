@@ -15,7 +15,7 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
@@ -23,48 +23,77 @@ import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 public class RemoteConnection {
 
     private String url;
-    private final Context context;
     private final RequestQueue queue;
-    private boolean sendOnlyWithGpsCoords;
+    private final SendMode sendMode;
 
-    public RemoteConnection(String url, Context context, boolean sendOnlyWithGpsCoords) {
+    private ArrayList<RemoteRequestReceiver> remoteRequestReceivers = new ArrayList<>();
+
+    private static final String TAG = "RemoteConnection";
+
+    /**
+     * Creates a new connection to an RESTful endpoint
+     * @param url the URL
+     * @param context the application context
+     * @param sendMode the send mode. This specifies how sendBeacons() and sendAllBeacons() will behave
+     */
+    public RemoteConnection(String url, Context context, SendMode sendMode) {
         this.url = url;
-        this.context = context;
+        this.sendMode = sendMode;
         queue = Volley.newRequestQueue(context);
-        this.sendOnlyWithGpsCoords = sendOnlyWithGpsCoords;
     }
 
-    public void requestBeacons(final RemoteReceiver receiver,double longS,double longE,double latS,double latE)
+    /**
+     * Request beacons in the specified range.
+     * You get the response sent to all RemoteRequestReceiver callbacks you have registered.
+     * @param longitudeStart the longitude start coordinate
+     * @param longitudeEnd the longitude end coordinate
+     * @param latitudeStart the latitude start coordinate
+     * @param latitudeEnd the latitude end coordinate
+     */
+    public void requestBeacons(double longitudeStart, double longitudeEnd, double latitudeStart, double latitudeEnd) {
+        request(longitudeStart, longitudeEnd, latitudeStart, latitudeEnd, remoteRequestReceivers);
+    }
+
+    /**
+     * Request beacons in the specified range
+     * You get the response sent ONLY to the RemoteRequestReceiver you have passed as argument!
+     * @param longitudeStart the longitude start coordinate
+     * @param longitudeEnd the longitude end coordinate
+     * @param latitudeStart the latitude start coordinate
+     * @param latitudeEnd the latitude end coordinate
+     * @param receiver the callback which receives the requested beacons
+     */
+    public void requestBeacons(double longitudeStart, double longitudeEnd, double latitudeStart, double latitudeEnd, final RemoteRequestReceiver receiver)
     {
-        String apiUrl = String.format("%s/%d/%f/%f/%f/%f", url, RemoteSettings.GetConfirmations(),longS,longE,latS,latE);
+        ArrayList<RemoteRequestReceiver> dummyList = new ArrayList<>();
+        dummyList.add(receiver);
+        request(longitudeStart, longitudeEnd, latitudeStart, latitudeEnd, dummyList);
+    }
+
+    private void request(double longS, double longE, double latS, double latE, final ArrayList<RemoteRequestReceiver> receivers) {
+        String apiUrl = String.format("%s/%d/%f/%f/%f/%f", url, RemoteSettings.GetConfirmations(), longS, longE, latS, latE);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, apiUrl,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
+                response -> {
 
-                        RemoteBeaconObject[] rcvBeacons = new Gson().fromJson(response, RemoteBeaconObject[].class);
-                        LinkedList<SimpleBeacon> rcConvert = new LinkedList<>();
-                        for (RemoteBeaconObject rmt: rcvBeacons
-                             ) {
-                            rcConvert.add(rmt.GetSimpleBeacon());
-
-                        }
-                        SimpleBeacon[] parsedbeacons = new SimpleBeacon[rcConvert.size()];
-                        parsedbeacons = rcConvert.toArray(parsedbeacons);
-                        receiver.onBeaconReceive(parsedbeacons);
+                    RemoteBeaconObject[] rcvBeacons = new Gson().fromJson(response, RemoteBeaconObject[].class);
+                    ArrayList<SimpleBeacon> simpleBeacons = new ArrayList<>();
+                    for (RemoteBeaconObject rmt: rcvBeacons) {
+                        simpleBeacons.add(rmt.GetSimpleBeacon());
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                receiver.onBeaconReceiveError();
-            }
-        });
+                    for (RemoteRequestReceiver receiver : receivers) {
+                        receiver.onBeaconsReceived(simpleBeacons);
+                    }
+                }, error -> {
+                    for (RemoteRequestReceiver receiver : receivers) {
+                        receiver.onBeaconReceiveError();
+                    }
+                });
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
 
-    private void sendBeacon(SimpleBeacon simpleBeacon)
+    private void send(SimpleBeacon simpleBeacon)
     {
         JSONObject beaconAsJson = null;
         try {
@@ -73,41 +102,71 @@ public class RemoteConnection {
             e.printStackTrace();
         }
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,url,beaconAsJson,
-                new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        //TODO: Give user feedback of successfull submission?
-                    Log.d("BEACON","SENDBEACON");
-                    }
-                }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                // TODO: Handle error
-                Log.d("BEACON","SENDBEACON_ERROR");
-            }
-        });
+                response -> {
+                    //TODO: Give user feedback of successfull submission?
+                Log.d(TAG,"SENDBEACON");
+                }, error -> {
+                    // TODO: Handle error
+                    Log.d(TAG,"SENDBEACON_ERROR");
+                });
         queue.add(jsonObjectRequest);
     }
 
+    /**
+     * Send a beacon.
+     * Be aware that this beacon only gets send if SendMode allows this.
+     * @param simpleBeacon the beacon to send
+     */
+    public void sendBeacon(SimpleBeacon simpleBeacon) {
+        switch (sendMode) {
+            case DO_SEND_BEACONS:
+                send(simpleBeacon);
+                break;
 
+            case DO_ONLY_SEND_IF_BEACONS_HAVE_GPS:
+                if (simpleBeacon.location != null) {
+                    send(simpleBeacon);
+                }
+                break;
+            case DO_NOT_SEND_BEACONS:
+                break;
+            default:
+                break;
+        }
+    }
 
-
-
-    public void send(SimpleBeacon simpleBeacon) {
-        if (sendOnlyWithGpsCoords) {
-            if (simpleBeacon.location != null) {
-                sendBeacon(simpleBeacon);
-            }
-        } else {
+    /**
+     * Send all beacons.
+     * Be aware that they only get send if SendMode allows this.
+     * @param simpleBeacons the beacons to send
+     */
+    public void sendAllBeacons(List<SimpleBeacon> simpleBeacons) {
+        for (SimpleBeacon simpleBeacon : simpleBeacons) {
             sendBeacon(simpleBeacon);
         }
     }
 
-    public void sendAll(List<SimpleBeacon> simpleBeacons) {
-        for (SimpleBeacon simpleBeacon : simpleBeacons) {
-            send(simpleBeacon);
-        }
+    /**
+     * Adds a callback to callback list which gets fired if beacons are received.
+     * @param callback the callback
+     */
+    public void addRemoteReceiver(RemoteRequestReceiver callback) {
+        remoteRequestReceivers.add(callback);
+    }
+
+    /**
+     * Removes this callback from list.
+     * @param callback the callback
+     * @return true if it was successful
+     */
+    public boolean removeRemoteReceiver(RemoteRequestReceiver callback) {
+        return remoteRequestReceivers.remove(callback);
+    }
+
+    /**
+     * Clears the callback list.
+     */
+    public void clearRemoteReceivers() {
+        remoteRequestReceivers.clear();
     }
 }

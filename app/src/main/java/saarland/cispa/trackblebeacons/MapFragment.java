@@ -34,7 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
-import saarland.cispa.bletrackerlib.remote.RemoteReceiver;
+import saarland.cispa.bletrackerlib.remote.RemoteRequestReceiver;
 
 public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemGestureListener {
 
@@ -50,7 +50,6 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
     private View rootView = null;
 
     private BleTracker bleTracker;
-    private RemoteReceiver remoteReceiver;
     private boolean apiRequestRunning = false;
 
 
@@ -65,9 +64,11 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        initRemoteReceiver();
-        //Initialize map and set default location
+        bleTracker = BleTracker.getInstance();
 
+        initRemoteReceiver();
+
+        //Initialize map and set default location
         initMap();
     }
 
@@ -166,10 +167,10 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
     private void addBeaconToOverlay(SimpleBeacon beacon)
     {
         if (beacon.location != null ){
-            for (OverlayItem x:beaconsOverlay.getDisplayedItems()
-                 ) {
-                if(x.getSnippet().equals(String.valueOf(beacon.id)))
+            for (OverlayItem x:beaconsOverlay.getDisplayedItems()) {
+                if(x.getSnippet().equals(String.valueOf(beacon.id))) {
                     return;
+                }
             }
             beaconsOverlay.addItem(new OverlayItem("Beacon", String.valueOf(beacon.id),
                     new GeoPoint(beacon.location.locationLat, beacon.location.locationLong)));
@@ -179,10 +180,9 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
 
     private void initRemoteReceiver()
     {
-        bleTracker = ((MainActivity)getActivity()).getBleTracker();
-        remoteReceiver = new RemoteReceiver() {
+        RemoteRequestReceiver receiver = new RemoteRequestReceiver() {
             @Override
-            public void onBeaconReceive(SimpleBeacon[] beacons) {
+            public void onBeaconsReceived(ArrayList<SimpleBeacon> beacons) {
                 for (SimpleBeacon beacon:beacons) {
                     /*TODO: Perform Check if already loaded this beacon */
                     /*((MainActivity)getActivity()).simpleBeacons*/
@@ -198,6 +198,7 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
                 Log.d("API","Failed to receiver beacons from api");
             }
         };
+        bleTracker.getCispaConnection().addRemoteReceiver(receiver);
     }
 
 
@@ -210,7 +211,7 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
         double latStart = this.map.getMapCenter().getLatitude() - (map.getLatitudeSpanDouble()/2.0);
         double longStart = this.map.getMapCenter().getLongitude() - (map.getLongitudeSpanDouble()/2.0);
 
-        bleTracker.getCispaConnection().requestBeacons(remoteReceiver,longStart,longStart + map.getLatitudeSpanDouble(), latStart, latStart +map.getLatitudeSpanDouble());
+        bleTracker.getCispaConnection().requestBeacons(longStart,longStart + map.getLatitudeSpanDouble(), latStart, latStart +map.getLatitudeSpanDouble());
 
     }
 

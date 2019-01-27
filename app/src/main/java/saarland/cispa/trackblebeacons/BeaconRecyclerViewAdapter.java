@@ -1,6 +1,8 @@
 package saarland.cispa.trackblebeacons;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.net.URI;
+import java.net.URL;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
@@ -33,6 +37,7 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
     private OnControlsOpen onControlsOpen;
     private Context context;
+
     private static final DiffUtil.ItemCallback<SimpleBeacon> DIFF_CALLBACK = new DiffUtil.ItemCallback<SimpleBeacon>() {
         @Override
         public boolean areItemsTheSame(@NonNull SimpleBeacon oldItem, @NonNull SimpleBeacon newItem) {
@@ -93,6 +98,9 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
     static class BaseHolder extends RecyclerView.ViewHolder {
 
+        SimpleBeacon displayedBeacon;
+        Context context;
+
         Button visit_website_btn;
         Button ruuvi_visit_website_button;
         CardView card;
@@ -120,6 +128,8 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
         BaseHolder(@NonNull View itemView) {
             super(itemView);
+
+            context = itemView.getContext();
 
             visit_website_btn = itemView.findViewById(R.id.visit_website_btn);
             ruuvi_visit_website_button = itemView.findViewById(R.id.ruuvi_visit_website_btn);
@@ -149,6 +159,8 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
 
         public void bindView(SimpleBeacon beacon) {
+            displayedBeacon = beacon;
+
             visit_website_btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -172,8 +184,7 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
 
             manufacturer.setText(String.format(Locale.getDefault(), "0x%04X", beacon.manufacturer));
 
-            //TODO: Handle date...
-            last_seen.setText(DateParser.utcToLocalDate(itemView.getContext() ,beacon.timestamp));
+            last_seen.setText(DateParser.makeDisplayDate(DateParser.utcToLocalDate(itemView.getContext() ,beacon.timestamp)));
 
             rssid.setText(String.format(itemView.getContext().getString(R.string.rssi_x_dbm), beacon.signalStrength));
             tx.setText(String.format(itemView.getContext().getString(R.string.tx_x_dbm), beacon.transmitPower));
@@ -209,7 +220,15 @@ public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconR
         }
 
         private void onUrlClicked() {
-            //TODO: OpenURL
+            if (displayedBeacon != null && displayedBeacon.eddystoneUrlData != null) {
+                String url = displayedBeacon.eddystoneUrlData.url;
+                try {
+                    Uri uri = Uri.parse(url);
+                    context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                } catch (Exception e) {
+
+                }
+            }
         }
     }
 

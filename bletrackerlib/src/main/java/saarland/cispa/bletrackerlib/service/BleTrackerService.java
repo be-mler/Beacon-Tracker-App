@@ -92,7 +92,7 @@ public final class BleTrackerService extends Application implements BootstrapNot
     }
 
     /**
-     * This method is called if a beacon enters the region and send's onBeaconNearby callback to the app
+     * This method is called if a beacon enters the region and sendBeacon's onBeaconNearby callback to the app
      * This callback can be used to show a notification etc.
      * @param region the beacons to look for
      */

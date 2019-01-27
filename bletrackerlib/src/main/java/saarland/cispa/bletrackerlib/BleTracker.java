@@ -15,36 +15,57 @@ import androidx.appcompat.app.AlertDialog;
 import saarland.cispa.bletrackerlib.remote.RemoteSettings;
 import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
+import saarland.cispa.bletrackerlib.remote.SendMode;
 import saarland.cispa.bletrackerlib.service.BleTrackerService;
 import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
 
 public class BleTracker {
 
-    private Context context;
+    private static BleTracker bleTracker;
     private BleTrackerService service;
-    private final ArrayList<BeaconStateNotifier> notifiers = new ArrayList<>();
-    private final RemoteConnection cispaConnection;
+    private final ArrayList<BeaconStateNotifier> beaconNotifiers = new ArrayList<>();
+    private final ArrayList<ServiceStateNotifier> serviceNotifiers = new ArrayList<>();
 
-    /**
-     * Creates the beacon service with the specified operation mode
-     * @param context The application context
-     */
-    public BleTracker(Context context, boolean sendToCispa) {
-        service = (BleTrackerService) context.getApplicationContext();
-        RemoteSettings.Init(context);
-        if (sendToCispa) {
-            cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon", context, false);
-        } else {
-            cispaConnection = null;
+    private RemoteConnection cispaConnection;
+
+    public static BleTracker getInstance() {
+        if (bleTracker == null) {
+            bleTracker = new BleTracker();
         }
+        return bleTracker;
     }
 
     /**
-     * Adds a notifier callback
-     * @param notifier the callback
+     * Creates the beacon service with the specified operation mode
+     * @param activity The application activity
      */
-    public void addNotifier(BeaconStateNotifier notifier) {
-        notifiers.add(notifier);
+    public void init(Activity activity, boolean sendToCispa) {
+        updateActivity(activity);
+        RemoteSettings.Init(activity);
+        if (sendToCispa) {
+            cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon",
+                    service.getApplicationContext(), SendMode.DO_ONLY_SEND_IF_BEACONS_HAVE_GPS);
+        } else {
+            cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon",
+                    service.getApplicationContext(), SendMode.DO_NOT_SEND_BEACONS);
+        }
+
+    }
+
+    /**
+     * Adds a beaconNotifier which get's called if there are beacons near
+     * @param beaconNotifier the callback
+     */
+    public void addBeaconNotifier(BeaconStateNotifier beaconNotifier) {
+        beaconNotifiers.add(beaconNotifier);
+    }
+
+    /**
+     * Adds a serviceNotifier which get's called if the service state changes
+     * @param serviceNotifier
+     */
+    public void addServiceNotifier(ServiceStateNotifier serviceNotifier) {
+        serviceNotifiers.add(serviceNotifier);
     }
 
     /**
@@ -72,7 +93,7 @@ public class BleTracker {
         if (isRunning()) {
             throw new OtherServiceStillRunningException();
         }
-        service.createBackgroundService(cispaConnection, notifiers);
+        service.createBackgroundService(cispaConnection, beaconNotifiers);
     }
 
     /**
@@ -86,23 +107,41 @@ public class BleTracker {
         if (isRunning()) {
             throw new OtherServiceStillRunningException();
         }
-        service.createForegroundService(cispaConnection, notifiers, foregroundNotification);
+        service.createForegroundService(cispaConnection, beaconNotifiers, foregroundNotification);
     }
 
     /**
-     * Starts the service
+     * Starts the service and asks user to turn on bluetooth and GPS
+     * @param activity The application activity. Here the message will be displayed to turn on location an bluetooth
      */
-    public void start() {
-        showDialogIfGpsIsOff();
-        showDialogIfBluetoothIsOff();
+    public void start(Activity activity) {
+        showDialogIfGpsIsOff(activity);
+        showDialogIfBluetoothIsOff(activity);
         service.enableMonitoring();
+        for (ServiceStateNotifier serviceNotifier : serviceNotifiers) {
+            serviceNotifier.onStart();
+        }
+    }
+
+    /**
+     * Tries to start the service even if GPS and bluetooth is not turned on
+     */
+    public void startWithoutChecks() {
+        service.enableMonitoring();
+        for (ServiceStateNotifier serviceNotifier : serviceNotifiers) {
+            serviceNotifier.onStart();
+        }
     }
 
     /**
      * Stops the service
      */
     public void stop() {
+
         service.disableMonitoring();
+        for (ServiceStateNotifier serviceNotifier : serviceNotifiers) {
+            serviceNotifier.onStop();
+        }
     }
 
     /**
@@ -110,31 +149,23 @@ public class BleTracker {
      * @return true if service is running
      */
     public boolean isRunning() {
-        return service.isMonitoring();
+        return (service != null) && service.isMonitoring();
     }
 
     /**
      * Open a dialog and explain the user to turn on GPS and Network location
      */
-    private void showDialogIfGpsIsOff() {
-        if(!isGpsOn()) {
+    private void showDialogIfGpsIsOff(Activity activity) {
+        if(!isGpsOn(activity)) {
             // notify user
-            AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
             dialog.setMessage(R.string.gps_network_not_enabled);
-            dialog.setPositiveButton(R.string.open_location_settings, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    Intent gpsOptionsIntet = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    context.startActivity(gpsOptionsIntet);
-                }
+            dialog.setPositiveButton(R.string.open_location_settings, (paramDialogInterface, paramInt) -> {
+                Intent gpsOptionsIntet = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                activity.startActivity(gpsOptionsIntet);
             });
-            dialog.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    showAppFunctionalityLimitedWithout(R.string.functionality_limited_gps);
-                }
-            });
+            dialog.setNegativeButton(activity.getString(R.string.cancel),
+                    (paramDialogInterface, paramInt) -> showAppFunctionalityLimitedWithout(activity, R.string.functionality_limited_gps));
             dialog.show();
         }
     }
@@ -142,38 +173,23 @@ public class BleTracker {
     /**
      * Open a dialog and explain the user to turn on Bluetooth
      */
-    private void showDialogIfBluetoothIsOff() {
+    private void showDialogIfBluetoothIsOff(Activity activity) {
         final BluetoothAdapter ba = BluetoothAdapter.getDefaultAdapter();
         if (ba != null) {
             if (!isBluetoothOn()) {
-                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+                AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
                 dialog.setMessage(R.string.bluetooth_not_enabled);
-                dialog.setPositiveButton(R.string.enable, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ba.enable();
-                    }
-                });
-                dialog.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        showAppFunctionalityLimitedWithout(R.string.functionality_limited_bluetooth);
-                    }
-                });
+                dialog.setPositiveButton(R.string.enable, (dialog1, which) -> ba.enable());
+                dialog.setNegativeButton(activity.getString(R.string.cancel), (dialog12, which) -> showAppFunctionalityLimitedWithout(activity, R.string.functionality_limited_bluetooth));
                 dialog.show();
             }
         }
     }
 
-    private void showAppFunctionalityLimitedWithout(int message) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+    private void showAppFunctionalityLimitedWithout(Activity activity, int message) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
         dialog.setMessage(message);
-        dialog.setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
-        });
+        dialog.setNeutralButton(R.string.ok, (dialog1, which) -> {});
         dialog.show();
     }
 
@@ -193,8 +209,8 @@ public class BleTracker {
      * Check if gps is on and location mode high accuracy
      * @return true if gps is on and location mode is high accuracy
      */
-    private boolean isGpsOn() {
-        LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+    private boolean isGpsOn(Activity activity) {
+        LocationManager lm = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         boolean gps_enabled = false;
         //TODO: What to do with devices which have no network provider (most devices without play services installed)
         //boolean network_enabled = false;
@@ -213,10 +229,9 @@ public class BleTracker {
         return gps_enabled; //&& network_enabled;
     }
 
-    public void setContext(Activity activityContext) {
-        this.context = activityContext;
-        if (context != null) {
-            service = (BleTrackerService) context.getApplicationContext();
+    public void updateActivity(Activity activity) {
+        if (activity != null) {
+            service = (BleTrackerService) activity.getApplicationContext();
         }
     }
 }

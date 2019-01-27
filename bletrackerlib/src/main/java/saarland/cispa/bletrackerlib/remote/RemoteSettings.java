@@ -13,10 +13,7 @@ public class RemoteSettings {
 
     public static void Init(Context context)
     {
-        getInstance().prefManager = PreferenceManager
-                .getDefaultSharedPreferences(context);
-
-
+        getInstance().prefManager = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     private static RemoteSettings getInstance() {

@@ -1,6 +1,7 @@
 package saarland.cispa.trackblebeacons;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import saarland.cispa.bletrackerlib.BleTracker;
-import saarland.cispa.bletrackerlib.ServiceStateNotifier;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
-import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
+import saarland.cispa.bletrackerlib.remote.RemoteRequestReceiver;
 
-public class ScanFragment extends Fragment {
-
+public class NearbyFragment extends Fragment {
     private View rootView = null;
     private RecyclerView recyclerView;
     private BeaconRecyclerViewAdapter adapter;
@@ -30,10 +29,10 @@ public class ScanFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_scan, container, false);
+        rootView = inflater.inflate(R.layout.fragment_nearby, container, false);
 
         // 1. get a reference to recyclerView
-        recyclerView = rootView.findViewById(R.id.beacons_scan_rv);
+        recyclerView = rootView.findViewById(R.id.beacons_nearby_rv);
         recyclerView.setHasFixedSize(true);
 
         // 2. set layoutManger
@@ -60,8 +59,6 @@ public class ScanFragment extends Fragment {
         // 5. disable annoying item refresh animation
         recyclerView.setItemAnimator(null);
 
-        adapter.submitList(beaconList);
-
         return rootView;
     }
 
@@ -70,39 +67,34 @@ public class ScanFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         bleTracker = BleTracker.getInstance();
-        if (bleTracker.isRunning()) {
-            showEmptyView(false);
-        } else {
-            showEmptyView(true);
-        }
 
-        bleTracker.addServiceNotifier(new ServiceStateNotifier() {
-            @Override
-            public void onStop() {
-                showEmptyView(true);
-            }
+        initRemoteReceiver();
 
-            @Override
-            public void onStart() {
-                showEmptyView(false);
-            }
-        });
+        showEmptyView(true);
+    }
 
-        bleTracker.addBeaconNotifier(new BeaconStateNotifier() {
+    public void showEmptyView(boolean show) {
+        rootView.findViewById(R.id.empty_nearby_view).setVisibility(show ? View.VISIBLE : View.GONE);
+        rootView.findViewById(R.id.beacons_nearby_rv).setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+
+
+    private void initRemoteReceiver()
+    {
+        RemoteRequestReceiver receiver = new RemoteRequestReceiver() {
             @Override
-            public void onUpdate(ArrayList<SimpleBeacon> beacons) {
+            public void onBeaconsReceived(ArrayList<SimpleBeacon> beacons) {
+                // show empty view if there are no beacons near
+                showEmptyView(beacons.size() == 0);
+
                 adapter.submitList(beacons);
             }
 
             @Override
-            public void onBeaconNearby() {
-
+            public void onBeaconReceiveError() {
+                Log.d("API","Failed to receiver beacons from api");
             }
-        });
-    }
-
-    public void showEmptyView(boolean show) {
-        rootView.findViewById(R.id.empty_scan_view).setVisibility(show ? View.VISIBLE : View.GONE);
-        rootView.findViewById(R.id.beacons_scan_rv).setVisibility(show ? View.GONE : View.VISIBLE);
+        };
+        bleTracker.getCispaConnection().addRemoteReceiver(receiver);
     }
 }

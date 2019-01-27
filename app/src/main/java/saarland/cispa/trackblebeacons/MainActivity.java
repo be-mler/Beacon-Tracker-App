@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import saarland.cispa.bletrackerlib.BleTracker;
+import saarland.cispa.bletrackerlib.ServiceStateNotifier;
 import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
@@ -89,12 +90,14 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        pagerAdapter = new PagerAdapter(getSupportFragmentManager(), 2);
+        pagerAdapter = new PagerAdapter(getSupportFragmentManager(), 3);
 
         // Set up the ViewPager with the sections adapter.
         viewPager = findViewById(R.id.container);
         viewPager.setAdapter(pagerAdapter);
         viewPager.setSwipingEnabled(false);
+        // Do not destroy our 3 tab fragments!
+        viewPager.setOffscreenPageLimit(3);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
 
@@ -106,13 +109,28 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initTracker() {
-        bleTracker = new BleTracker(this, true);
+        final FloatingActionButton fab = findViewById(R.id.fab);
+
+        bleTracker = BleTracker.getInstance();
+        bleTracker.init(this, true);
+
+        bleTracker.addServiceNotifier(new ServiceStateNotifier() {
+            @Override
+            public void onStop() {
+                switchFabStatus();
+            }
+
+            @Override
+            public void onStart() {
+                switchFabStatus();
+            }
+        });
 
 //        final Animation animation = new RotateAnimation(0.0f, 360.0f,
 //                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,0.5f);
 //        animation.setRepeatCount(-1);
 //        animation.setDuration(2000);
-        final FloatingActionButton fab = findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,23 +141,19 @@ public class MainActivity extends AppCompatActivity {
                     } catch (OtherServiceStillRunningException e) {
                         e.printStackTrace();
                     }
-                    bleTracker.start();
+                    bleTracker.start(MainActivity.this);
                     Snackbar.make(view, getString(R.string.snackbar_started_scanning), Snackbar.LENGTH_LONG).show();
-                    fab.setImageDrawable(getDrawable(R.drawable.ic_stop));
-                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningRed)));
                     //fab.setAnimation(animation);
                 } else {
                     bleTracker.stop();
                     Snackbar.make(view, getString(R.string.snackbar_stopped_scanning), Snackbar.LENGTH_LONG).show();
-                    fab.setImageDrawable(getDrawable(R.drawable.ic_play_arrow));
-                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningGreen)));
                     //fab.setAnimation(null);
                 }
             }
         });
 
         // TODO: Respect settings for operation mode
-        bleTracker.addNotifier(new BeaconStateNotifier() {
+        bleTracker.addBeaconNotifier(new BeaconStateNotifier() {
             @Override
             public void onUpdate(ArrayList<SimpleBeacon> beacons) {
 
@@ -224,21 +238,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onDestroy()
+    {
         super.onDestroy();
+        bleTracker.updateActivity(null);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        bleTracker.setContext(null);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        bleTracker.setContext(this);
+        bleTracker.updateActivity(this);
+        switchFabStatus();
+    }
 
+    private void switchFabStatus() {
         final FloatingActionButton fab = findViewById(R.id.fab);
         if (bleTracker.isRunning()) {
             fab.setImageDrawable(getDrawable(R.drawable.ic_stop));
@@ -248,9 +266,5 @@ public class MainActivity extends AppCompatActivity {
             fab.setImageDrawable(getDrawable(R.drawable.ic_play_arrow));
             fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.scanningGreen)));
         }
-    }
-
-    public BleTracker getBleTracker() {
-        return bleTracker;
     }
 }

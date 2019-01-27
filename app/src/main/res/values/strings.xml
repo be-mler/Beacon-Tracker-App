@@ -10,7 +10,8 @@
     <string name="notification_channel_description">Default Channel</string>
     <string name="btn_gps_fixed">Center map to my position</string>
     <string name="tab_map_text">Map</string>
-    <string name="tab_nearby_text">Scan</string>
+    <string name="tab_nearby_text">Nearby</string>
+    <string name="tab_scan_text">Scan</string>
     <string name="visit_website">Visit Website</string>
     <string name="meters_abbreviation">m</string>
 
@@ -39,8 +40,10 @@
     <string name="temperature_d_degres">Temperature %d °C</string>
     <string name="humidity_x_percent">Humidity %d %%</string>
 
-    <string name="empty_state_content">To start scanning for nearby beacons just press the scan button. You\'ll see the scan results appear here.</string>
+    <string name="empty_state_scan_content">To start scanning for nearby beacons just press the scan button. You\'ll see the scan results appear here.</string>
+    <string name="empty_state_nearby_content">Here you will see the details of the beacons shown you at the map. \nIf there are no beacons on the map, change the view or walk on.</string>
     <string name="no_scanned_beacons_yet">No scanned beacons yet!</string>
+    <string name="no_nearby_beacons_yet">No beacons nearby.</string>
     <string name="intro1_title">BLE Beacon Tracker</string>
     <string name="intro1_desc">We started a project to find out where Bluetooth Low Energy Beacons are tracking people in real live. We are happy that you support us.</string>
     <string name="intro2_title">Bluetooth Access</string>

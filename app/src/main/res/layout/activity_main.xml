@@ -33,16 +33,22 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabItem"
+                android:id="@+id/tabitem_map"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_map_text" />
 
             <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabItem2"
+                android:id="@+id/tabitem_nearby"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_nearby_text" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabitem_scan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_scan_text" />
         </com.google.android.material.tabs.TabLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

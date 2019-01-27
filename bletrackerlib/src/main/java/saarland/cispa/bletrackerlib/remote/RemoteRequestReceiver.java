@@ -1,10 +1,12 @@
 package saarland.cispa.bletrackerlib.remote;
 
+import java.util.ArrayList;
+
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
-public interface RemoteReceiver {
+public interface RemoteRequestReceiver {
 
-    void onBeaconReceive(SimpleBeacon[] beacons);
+    void onBeaconsReceived(ArrayList<SimpleBeacon> beacons);
 
     void onBeaconReceiveError();
 }

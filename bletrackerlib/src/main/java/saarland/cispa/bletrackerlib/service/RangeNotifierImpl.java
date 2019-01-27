@@ -72,10 +72,10 @@ public class RangeNotifierImpl implements RangeNotifier {
 
 
         if (cispaConnection != null) {
-            cispaConnection.sendAll(simpleBeacons);
+            cispaConnection.sendAllBeacons(simpleBeacons);
         }
         for (RemoteConnection customConnection : customConnections) {
-            customConnection.sendAll(simpleBeacons);
+            customConnection.sendAllBeacons(simpleBeacons);
         }
     }
 }

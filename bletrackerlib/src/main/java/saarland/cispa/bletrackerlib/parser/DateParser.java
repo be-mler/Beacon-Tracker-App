@@ -1,7 +1,9 @@
 package saarland.cispa.bletrackerlib.parser;
 
 import android.content.Context;
+import android.util.Log;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,7 +14,10 @@ import androidx.core.content.ContextCompat;
 
 public class DateParser {
 
-    static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATEFORMAT_DISPLAY = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATEFORMAT_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss";
+
+    private static final String TAG = "DateParser";
 
     public static Date GetUTCdatetimeAsDate()
     {
@@ -22,7 +27,7 @@ public class DateParser {
 
     public static String getUTCdatetimeAsString()
     {
-        final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
+        final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT_ISO8601);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String utcTime = sdf.format(new Date());
 
@@ -32,7 +37,7 @@ public class DateParser {
     public static Date stringDateToDate(String StrDate)
     {
         Date dateToReturn = null;
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATEFORMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATEFORMAT_ISO8601);
 
         try
         {
@@ -49,15 +54,36 @@ public class DateParser {
     public static String utcToLocalDate(Context context, String utcDate) {
         Locale locale = context.getResources().getConfiguration().locale;
 
-        SimpleDateFormat df = new SimpleDateFormat(DATEFORMAT, locale);
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date = null;
         try {
-            date = df.parse(utcDate);
+            SimpleDateFormat df = new SimpleDateFormat(DATEFORMAT_ISO8601, locale);
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = df.parse(utcDate);
+            df.setTimeZone(TimeZone.getDefault());
+            return df.format(date);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getLocalizedMessage());
         }
-        df.setTimeZone(TimeZone.getDefault());
-        return df.format(date);
+        try {
+            SimpleDateFormat df = new SimpleDateFormat(DATEFORMAT_ISO8601, locale);
+            df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = df.parse(utcDate);
+            df.setTimeZone(TimeZone.getDefault());
+            return df.format(date);
+        } catch (ParseException e) {
+            Log.e(TAG, e.getLocalizedMessage());
+        }
+        return null;
+    }
+
+    public static String makeDisplayDate(String isoDate) {
+        try {
+            SimpleDateFormat df = new SimpleDateFormat(DATEFORMAT_ISO8601);
+            Date date = df.parse(isoDate);
+            df = new SimpleDateFormat(DATEFORMAT_DISPLAY);
+            return df.format(date);
+        } catch (ParseException e) {
+            Log.e(TAG, e.getLocalizedMessage());
+        }
+        return null;
     }
 }

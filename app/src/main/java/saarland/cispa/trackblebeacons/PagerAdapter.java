@@ -1,14 +1,19 @@
 package saarland.cispa.trackblebeacons;
 
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentPagerAdapter;
 
-public class PagerAdapter extends FragmentStatePagerAdapter {
-    int mNumOfTabs;
+public class PagerAdapter extends FragmentPagerAdapter {
+    private int mNumOfTabs;
+    private FragmentManager fm;
 
     public PagerAdapter(FragmentManager fm, int NumOfTabs) {
         super(fm);
+        this.fm = fm;
         this.mNumOfTabs = NumOfTabs;
 
     }
@@ -18,11 +23,11 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                MapFragment tab1 = new MapFragment();
-                return tab1;
+                return new MapFragment();
             case 1:
-                ScanFragment tab2 = new ScanFragment();
-                return tab2;
+                return new NearbyFragment();
+            case 2:
+                return new ScanFragment();
             default:
                 return null;
         }
