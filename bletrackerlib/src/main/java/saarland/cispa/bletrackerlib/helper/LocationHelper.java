@@ -2,10 +2,11 @@ package saarland.cispa.bletrackerlib.helper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.provider.Settings;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import androidx.appcompat.app.AlertDialog;
 import saarland.cispa.bletrackerlib.R;
@@ -16,6 +17,7 @@ public class LocationHelper extends BaseHelper {
      * @param activity is needed for showing the message
      */
     public static void showDialogIfGpsIsOff(Activity activity) {
+        AtomicBoolean positiveClicked = new AtomicBoolean(false);
         if(!isGpsOn(activity)) {
             // notify user
             AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
@@ -23,10 +25,15 @@ public class LocationHelper extends BaseHelper {
             dialog.setPositiveButton(R.string.open_location_settings, (paramDialogInterface, paramInt) -> {
                 Intent gpsOptionsIntet = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 activity.startActivity(gpsOptionsIntet);
+                positiveClicked.set(true);
             });
             dialog.setNegativeButton(activity.getString(R.string.cancel),
-                    (paramDialogInterface, paramInt) -> showAppFunctionalityLimitedWithout(activity, R.string.functionality_limited_gps));
-            dialog.setOnDismissListener(dialog1 -> showAppFunctionalityLimitedWithout(activity, R.string.functionality_limited_gps));
+                    (paramDialogInterface, paramInt) -> {} );
+            dialog.setOnDismissListener(dialog1 -> {
+                if (!positiveClicked.get()) {
+                    showAppFunctionalityLimitedWithout(activity, R.string.functionality_limited_gps);
+                }
+            });
             dialog.show();
         }
     }
