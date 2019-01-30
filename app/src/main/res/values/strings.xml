@@ -58,5 +58,6 @@
     <string name="snackbar_started_scanning">Started scanning for beacons</string>
     <string name="snackbar_stopped_scanning">Stopped scanning for beacons</string>
     <string name="no_distance_available">N/A</string>
+    <string name="action_share">Share</string>
 
 </resources>

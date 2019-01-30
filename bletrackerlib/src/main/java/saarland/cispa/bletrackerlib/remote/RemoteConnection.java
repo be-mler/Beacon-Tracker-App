@@ -85,7 +85,7 @@ public class RemoteConnection {
                     }
                 }, error -> {
                     for (RemoteRequestReceiver receiver : receivers) {
-                        receiver.onBeaconReceiveError();
+                        receiver.onBeaconReceiveError(error.getMessage());
                     }
                 });
 
@@ -104,10 +104,10 @@ public class RemoteConnection {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,url,beaconAsJson,
                 response -> {
                     //TODO: Give user feedback of successfull submission?
-                Log.d(TAG,"SENDBEACON");
+                Log.d(TAG,"send successful");
                 }, error -> {
                     // TODO: Handle error
-                    Log.d(TAG,"SENDBEACON_ERROR");
+                    Log.d(TAG,"send error: "+error.getMessage());
                 });
         queue.add(jsonObjectRequest);
     }

@@ -110,7 +110,7 @@ public class NearbyFragment extends Fragment {
             }
 
             @Override
-            public void onBeaconReceiveError() {
+            public void onBeaconReceiveError(String errorMessage) {
                 Log.d("API","Failed to receiver beacons from api");
             }
         };

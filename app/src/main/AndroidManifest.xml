@@ -30,6 +30,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".IntroActivity" android:description="@string/app_name"></activity>
+        <activity android:name=".SettingsActivity" android:description="@string/action_settings"></activity>
     </application>
 
 </manifest>

@@ -193,7 +193,7 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
             }
 
             @Override
-            public void onBeaconReceiveError() {
+            public void onBeaconReceiveError(String errorMessage) {
                 apiRequestRunning = false;
                 Log.d("API","Failed to receiver beacons from api");
             }

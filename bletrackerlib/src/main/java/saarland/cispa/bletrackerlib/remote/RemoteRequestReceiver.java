@@ -8,5 +8,5 @@ public interface RemoteRequestReceiver {
 
     void onBeaconsReceived(ArrayList<SimpleBeacon> beacons);
 
-    void onBeaconReceiveError();
+    void onBeaconReceiveError(String errorMessage);
 }

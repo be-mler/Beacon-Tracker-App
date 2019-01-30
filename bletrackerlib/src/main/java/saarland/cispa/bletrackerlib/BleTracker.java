@@ -41,10 +41,10 @@ public class BleTracker {
      * Creates the beacon service with the specified operation mode
      * @param activity The application activity
      */
-    public void init(Activity activity, boolean sendToCispa) {
+    public void init(Activity activity, BleTrackerPreferences preferences) {
         updateActivity(activity);
         RemoteSettings.Init(activity);
-        if (sendToCispa) {
+        if (preferences.isSendToCispa()) {
             cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon",
                     service.getApplicationContext(), SendMode.DO_ONLY_SEND_IF_BEACONS_HAVE_GPS);
         } else {

@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import saarland.cispa.bletrackerlib.BleTracker;
+import saarland.cispa.bletrackerlib.BleTrackerPreferences;
 import saarland.cispa.bletrackerlib.ServiceStateNotifier;
 import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
@@ -112,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
         final FloatingActionButton fab = findViewById(R.id.fab);
 
         bleTracker = BleTracker.getInstance();
-        bleTracker.init(this, true);
+        BleTrackerPreferences preferences = new BleTrackerPreferences();
+        bleTracker.init(this, preferences);
 
         bleTracker.addServiceNotifier(new ServiceStateNotifier() {
             @Override
@@ -194,6 +196,11 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent= new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        if (id == R.id.action_share) {
             return true;
         }
 
