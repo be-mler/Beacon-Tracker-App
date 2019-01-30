@@ -10,6 +10,8 @@ public class RemoteBeaconObject {
 
     public String BeaconType ;
 
+    //Hashcode from lib, needed for recyclerview
+    public int HashCode;
 
     public String DiscoveryTime ;
     public double LocationLong ;
@@ -53,6 +55,8 @@ public class RemoteBeaconObject {
     public int UUIDUniqueID ; //UUID's are not unique so if distance to high to existing ones create additional here.
     public int NumConfirmations ;
     public String LastConfirmation ;
+
+
     
     //Empty Constructor for Deserialization (not sure if this is required in java)
     public RemoteBeaconObject(){};
@@ -64,6 +68,8 @@ public class RemoteBeaconObject {
         simpleBeacon.id = this.ID;
         simpleBeacon.beaconType = this.BeaconType;
         simpleBeacon.timestamp = this.DiscoveryTime;
+
+        simpleBeacon.hashcode = this.HashCode;
 
 
         if(this.LocationLat != 0 && LocationLat != 0) {
@@ -125,6 +131,8 @@ public class RemoteBeaconObject {
             this.LocationLat = simpleBeacon.location.locationLat;
             this.LocationRadius = simpleBeacon.location.locationRadius;
         }
+
+        this.HashCode = simpleBeacon.hashcode;
 
         //UNUSED?
         //Our Currently unused
