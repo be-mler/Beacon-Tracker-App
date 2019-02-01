@@ -15,16 +15,26 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
+import saarland.cispa.bletrackerlib.parser.DateParser;
 
 public class RemoteConnection {
 
     private String url;
     private final RequestQueue queue;
     private final SendMode sendMode;
+    private Map<Integer,String> sentBeacons = new HashMap<>();
 
     private ArrayList<RemoteRequestReceiver> remoteRequestReceivers = new ArrayList<>();
 
@@ -118,6 +128,24 @@ public class RemoteConnection {
      * @param simpleBeacon the beacon to send
      */
     public void sendBeacon(SimpleBeacon simpleBeacon) {
+        if(sentBeacons.containsKey(simpleBeacon.hashcode))
+        {
+
+
+                Date lastSend = DateParser.stringDateToDate(sentBeacons.get(simpleBeacon.hashcode));
+                Date currentSend = DateParser.stringDateToDate(simpleBeacon.timestamp);
+                long timediff = currentSend.getTime() - lastSend.getTime();
+                if(timediff < 15 * 1000)
+                    return;
+
+
+
+        }
+        sentBeacons.put(simpleBeacon.hashcode,simpleBeacon.timestamp);
+
+
+
+
         switch (sendMode) {
             case DO_SEND_BEACONS:
                 send(simpleBeacon);

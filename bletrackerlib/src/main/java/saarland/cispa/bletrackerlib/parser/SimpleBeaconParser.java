@@ -4,7 +4,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
+import android.util.Log;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.utils.UrlBeaconUrlCompressor;
@@ -15,7 +18,7 @@ import saarland.cispa.bletrackerlib.exceptions.ParseException;
 
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 
-public class SimpleBeaconParser {
+public class SimpleBeaconParser implements LocationListener {
 
     private static final String TAG = "SimpleBeaconLayouts";
     private static final int LOCATION_FRESH_TIMESPAN = 1000 * 60; // in Milliseconds
@@ -24,6 +27,10 @@ public class SimpleBeaconParser {
 
     public SimpleBeaconParser(Context context) {
         this.context = context;
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            { locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_FRESH_TIMESPAN / 3, -1, this);}
+
     }
 
     /**
@@ -101,11 +108,14 @@ public class SimpleBeaconParser {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
             if (isLocationFresh(location) && isLocationAccurate(location)) {
                 simpleBeacon.location = new SimpleBeacon.Location(location.getLongitude(), location.getLatitude(),location.getAccuracy());
             }
         }
     }
+
+
 
     private boolean isLocationFresh(Location location) {
         if (location == null) {
@@ -125,5 +135,23 @@ public class SimpleBeaconParser {
     }
 
 
+    @Override
+    public void onLocationChanged(Location location) {
+        //Log.d(TAG,location.toString());
+    }
 
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }
