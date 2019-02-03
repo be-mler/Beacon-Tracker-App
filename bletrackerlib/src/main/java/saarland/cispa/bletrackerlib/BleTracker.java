@@ -2,19 +2,11 @@ package saarland.cispa.bletrackerlib;
 
 import android.app.Activity;
 import android.app.Notification;
-import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.location.LocationManager;
-import android.provider.Settings;
 
 import java.util.ArrayList;
 
-import androidx.appcompat.app.AlertDialog;
 import saarland.cispa.bletrackerlib.helper.BluetoothHelper;
 import saarland.cispa.bletrackerlib.helper.LocationHelper;
-import saarland.cispa.bletrackerlib.remote.RemoteSettings;
 import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 import saarland.cispa.bletrackerlib.remote.SendMode;
@@ -43,14 +35,11 @@ public class BleTracker {
      */
     public void init(Activity activity, BleTrackerPreferences preferences) {
         updateActivity(activity);
-        RemoteSettings.Init(activity);
-        if (preferences.isSendToCispa()) {
+        preferences.LoadSettings(activity);
+
             cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon",
-                    service.getApplicationContext(), SendMode.DO_ONLY_SEND_IF_BEACONS_HAVE_GPS);
-        } else {
-            cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon",
-                    service.getApplicationContext(), SendMode.DO_NOT_SEND_BEACONS);
-        }
+                    service.getApplicationContext(), preferences);
+
 
     }
 

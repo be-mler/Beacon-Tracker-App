@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import saarland.cispa.bletrackerlib.BleTrackerPreferences;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.parser.DateParser;
 
@@ -34,8 +35,8 @@ public class RemoteConnection {
 
     private String url;
     private final RequestQueue queue;
-    private final SendMode sendMode;
     private Map<Integer,String> sentBeacons = new HashMap<>();
+    private BleTrackerPreferences bleTrackerPreferences;
 
     private ArrayList<RemoteRequestReceiver> remoteRequestReceivers = new ArrayList<>();
 
@@ -45,11 +46,11 @@ public class RemoteConnection {
      * Creates a new connection to an RESTful endpoint
      * @param url the URL
      * @param context the application context
-     * @param sendMode the send mode. This specifies how sendBeacons() and sendAllBeacons() will behave
+     * @param bleTrackerPreferences the settings. This specifies how sendBeacons() and sendAllBeacons() will behave
      */
-    public RemoteConnection(String url, Context context, SendMode sendMode) {
+    public RemoteConnection(String url, Context context, BleTrackerPreferences bleTrackerPreferences) {
         this.url = url;
-        this.sendMode = sendMode;
+        this.bleTrackerPreferences = bleTrackerPreferences;
         queue = Volley.newRequestQueue(context);
     }
 
@@ -82,7 +83,7 @@ public class RemoteConnection {
     }
 
     private void request(double longS, double longE, double latS, double latE, final ArrayList<RemoteRequestReceiver> receivers) {
-        String apiUrl = String.format(Locale.ENGLISH,"%s/%d/%f/%f/%f/%f", url, RemoteSettings.GetConfirmations(), longS, longE, latS, latE);
+        String apiUrl = String.format(Locale.ENGLISH,"%s/%d/%f/%f/%f/%f", url, bleTrackerPreferences.getMinConfirmations(), longS, longE, latS, latE);
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, apiUrl,
                 response -> {
@@ -148,7 +149,7 @@ public class RemoteConnection {
 
 
 
-        switch (sendMode) {
+        switch (bleTrackerPreferences.getSendMode()) {
             case DO_SEND_BEACONS:
                 send(simpleBeacon);
                 break;

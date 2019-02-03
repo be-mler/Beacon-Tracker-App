@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import saarland.cispa.bletrackerlib.remote.RemoteSettings;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.exceptions.ParseException;
 import saarland.cispa.bletrackerlib.parser.SimpleBeaconParser;
@@ -67,9 +66,6 @@ public class RangeNotifierImpl implements RangeNotifier {
      * @param simpleBeacons the simple beacons
      */
     private void sendAll(List<SimpleBeacon> simpleBeacons) {
-        if(!RemoteSettings.GetSubmit())
-            return;
-
 
         if (cispaConnection != null) {
             cispaConnection.sendAllBeacons(simpleBeacons);
