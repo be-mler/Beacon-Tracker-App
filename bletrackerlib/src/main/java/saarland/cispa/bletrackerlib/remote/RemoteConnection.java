@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
@@ -81,7 +82,8 @@ public class RemoteConnection {
     }
 
     private void request(double longS, double longE, double latS, double latE, final ArrayList<RemoteRequestReceiver> receivers) {
-        String apiUrl = String.format("%s/%d/%f/%f/%f/%f", url, RemoteSettings.GetConfirmations(), longS, longE, latS, latE);
+        String apiUrl = String.format(Locale.ENGLISH,"%s/%d/%f/%f/%f/%f", url, RemoteSettings.GetConfirmations(), longS, longE, latS, latE);
+
         StringRequest stringRequest = new StringRequest(Request.Method.GET, apiUrl,
                 response -> {
 
