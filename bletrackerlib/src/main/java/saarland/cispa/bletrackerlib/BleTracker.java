@@ -20,6 +20,12 @@ public class BleTracker {
     private final ArrayList<BeaconStateNotifier> beaconNotifiers = new ArrayList<>();
     private final ArrayList<ServiceStateNotifier> serviceNotifiers = new ArrayList<>();
 
+    public BleTrackerPreferences getBleTrackerPreferences() {
+        return bleTrackerPreferences;
+    }
+
+    private  BleTrackerPreferences bleTrackerPreferences;
+
     private RemoteConnection cispaConnection;
 
     public static BleTracker getInstance() {
@@ -35,7 +41,8 @@ public class BleTracker {
      */
     public void init(Activity activity, BleTrackerPreferences preferences) {
         updateActivity(activity);
-        preferences.LoadSettings(activity);
+        bleTrackerPreferences = preferences;
+        bleTrackerPreferences.LoadSettings(activity);
 
             cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon",
                     service.getApplicationContext(), preferences);

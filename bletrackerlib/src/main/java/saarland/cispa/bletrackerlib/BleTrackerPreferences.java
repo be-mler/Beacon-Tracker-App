@@ -13,6 +13,7 @@ public class BleTrackerPreferences {
     private boolean sendToCispa = true;
     private boolean showBeaconNotifications = true;
     private int minConfirmations = 1;
+    private SendMode sendMode = SendMode.DO_ONLY_SEND_IF_BEACONS_HAVE_GPS;
 
     public SendMode getSendMode() {
         return sendMode;
@@ -22,7 +23,7 @@ public class BleTrackerPreferences {
         this.sendMode = sendMode;
     }
 
-    private SendMode sendMode = SendMode.DO_ONLY_SEND_IF_BEACONS_HAVE_GPS;
+
 
     public boolean isSendToCispa() {
         return sendToCispa;

@@ -209,6 +209,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void sendNotification() {
+        if(!bleTracker.getBleTrackerPreferences().isShowBeaconNotifications())
+            return;
+
+
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);

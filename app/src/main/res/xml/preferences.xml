@@ -2,12 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreferenceCompat
-        app:key="notifications"
-        app:title="Enable message notifications"/>
+        app:key="switch_showBeaconNotifications"
+        app:title="Beacon Notifications"/>
 
     <SwitchPreferenceCompat
-        app:key="test"
-        app:title="This is all test. replace with own"/>
+        app:key="switch_sendToCispa"
+        app:title="Submit Discovered Beacons"/>
+
 
     <Preference
         app:key="feedback"
