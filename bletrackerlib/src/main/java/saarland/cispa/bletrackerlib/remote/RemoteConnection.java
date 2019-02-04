@@ -4,9 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.Request;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -15,19 +13,13 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import saarland.cispa.bletrackerlib.BleTrackerPreferences;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.parser.DateParser;
 
@@ -36,7 +28,8 @@ public class RemoteConnection {
     private String url;
     private final RequestQueue queue;
     private Map<Integer,String> sentBeacons = new HashMap<>();
-    private BleTrackerPreferences bleTrackerPreferences;
+    private RemotePreferences remotePreferences;
+
 
     private ArrayList<RemoteRequestReceiver> remoteRequestReceivers = new ArrayList<>();
 
@@ -46,11 +39,11 @@ public class RemoteConnection {
      * Creates a new connection to an RESTful endpoint
      * @param url the URL
      * @param context the application context
-     * @param bleTrackerPreferences the settings. This specifies how sendBeacons() and sendAllBeacons() will behave
+     * @param remotePreferences the settings. This specifies how sending and receiving will behave
      */
-    public RemoteConnection(String url, Context context, BleTrackerPreferences bleTrackerPreferences) {
+    public RemoteConnection(String url, Context context, RemotePreferences remotePreferences) {
         this.url = url;
-        this.bleTrackerPreferences = bleTrackerPreferences;
+        this.remotePreferences = remotePreferences;
         queue = Volley.newRequestQueue(context);
     }
 
@@ -83,7 +76,7 @@ public class RemoteConnection {
     }
 
     private void request(double longS, double longE, double latS, double latE, final ArrayList<RemoteRequestReceiver> receivers) {
-        String apiUrl = String.format(Locale.ENGLISH,"%s/%d/%f/%f/%f/%f", url, bleTrackerPreferences.getMinConfirmations(), longS, longE, latS, latE);
+        String apiUrl = String.format(Locale.ENGLISH,"%s/%d/%f/%f/%f/%f", url, remotePreferences.getMinConfirmations(), longS, longE, latS, latE);
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, apiUrl,
                 response -> {
@@ -97,10 +90,10 @@ public class RemoteConnection {
                         receiver.onBeaconsReceived(simpleBeacons);
                     }
                 }, error -> {
-                    for (RemoteRequestReceiver receiver : receivers) {
-                        receiver.onBeaconReceiveError(error.getMessage());
-                    }
-                });
+            for (RemoteRequestReceiver receiver : receivers) {
+                receiver.onBeaconReceiveError(error.getMessage());
+            }
+        });
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
@@ -117,11 +110,11 @@ public class RemoteConnection {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,url,beaconAsJson,
                 response -> {
                     //TODO: Give user feedback of successfull submission?
-                Log.d(TAG,"send successful");
+                    Log.d(TAG,"send successful");
                 }, error -> {
-                    // TODO: Handle error
-                    Log.d(TAG,"send error: "+error.getMessage());
-                });
+            // TODO: Handle error
+            Log.d(TAG,"send error: "+error.getMessage());
+        });
         queue.add(jsonObjectRequest);
     }
 
@@ -133,23 +126,15 @@ public class RemoteConnection {
     public void sendBeacon(SimpleBeacon simpleBeacon) {
         if(sentBeacons.containsKey(simpleBeacon.hashcode))
         {
-
-
-                Date lastSend = DateParser.stringDateToDate(sentBeacons.get(simpleBeacon.hashcode));
-                Date currentSend = DateParser.stringDateToDate(simpleBeacon.timestamp);
-                long timediff = currentSend.getTime() - lastSend.getTime();
-                if(timediff < 15 * 1000)
-                    return;
-
-
-
+            Date lastSend = DateParser.stringDateToDate(sentBeacons.get(simpleBeacon.hashcode));
+            Date currentSend = DateParser.stringDateToDate(simpleBeacon.timestamp);
+            long timediff = currentSend.getTime() - lastSend.getTime();
+            if(timediff < remotePreferences.getSendInterval())
+                return;
         }
         sentBeacons.put(simpleBeacon.hashcode,simpleBeacon.timestamp);
 
-
-
-
-        switch (bleTrackerPreferences.getSendMode()) {
+        switch (remotePreferences.getSendMode()) {
             case DO_SEND_BEACONS:
                 send(simpleBeacon);
                 break;

@@ -7,11 +7,12 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.utils.UrlBeaconUrlCompressor;
 
+import saarland.cispa.bletrackerlib.BleTracker;
+import saarland.cispa.bletrackerlib.BleTrackerPreferences;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.data.SimpleBeaconLayouts;
 import saarland.cispa.bletrackerlib.exceptions.ParseException;
@@ -21,16 +22,16 @@ import static androidx.core.content.ContextCompat.checkSelfPermission;
 public class SimpleBeaconParser implements LocationListener {
 
     private static final String TAG = "SimpleBeaconLayouts";
-    private static final int LOCATION_FRESH_TIMESPAN = 1000 * 60; // in Milliseconds
-    private static final int LOCATION_ACCURAY = 50; // in Meters
+
+    private BleTrackerPreferences preferences = BleTracker.getInstance().getPreferences();
     private Context context;
 
     public SimpleBeaconParser(Context context) {
         this.context = context;
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            { locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_FRESH_TIMESPAN / 3, -1, this);}
-
+        if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, preferences.getLocationFreshness() / 3, -1, this);
+        }
     }
 
     /**
@@ -123,7 +124,7 @@ public class SimpleBeaconParser implements LocationListener {
         }
         long gpsTime = location.getTime();
         long systemTime = System.currentTimeMillis();
-        return systemTime - gpsTime <= LOCATION_FRESH_TIMESPAN;
+        return (systemTime - gpsTime) <= preferences.getLocationFreshness();
     }
 
     private boolean isLocationAccurate(Location location) {
@@ -131,13 +132,12 @@ public class SimpleBeaconParser implements LocationListener {
             return false;
         }
         float accuracy = location.getAccuracy();
-        return accuracy > 0 && accuracy <= LOCATION_ACCURAY;
+        return accuracy > 0 && accuracy <= preferences.getLocationAccuracy();
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
-        //Log.d(TAG,location.toString());
+
     }
 
     @Override

@@ -133,24 +133,21 @@ public class MainActivity extends AppCompatActivity {
 //        animation.setRepeatCount(-1);
 //        animation.setDuration(2000);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!bleTracker.isRunning()) {
-                    Notification notification = ForegroundNotification.create(getApplicationContext(), R.drawable.ic_stat_name, MainActivity.class);
-                    try {
-                        bleTracker.createForegroundService(notification);
-                    } catch (OtherServiceStillRunningException e) {
-                        e.printStackTrace();
-                    }
-                    bleTracker.start(MainActivity.this);
-                    Snackbar.make(view, getString(R.string.snackbar_started_scanning), Snackbar.LENGTH_LONG).show();
-                    //fab.setAnimation(animation);
-                } else {
-                    bleTracker.stop();
-                    Snackbar.make(view, getString(R.string.snackbar_stopped_scanning), Snackbar.LENGTH_LONG).show();
-                    //fab.setAnimation(null);
+        fab.setOnClickListener(view -> {
+            if (!bleTracker.isRunning()) {
+                Notification notification = ForegroundNotification.create(getApplicationContext(), R.drawable.ic_stat_name, MainActivity.class);
+                try {
+                    bleTracker.createForegroundService(notification);
+                } catch (OtherServiceStillRunningException e) {
+                    e.printStackTrace();
                 }
+                bleTracker.start(MainActivity.this);
+                Snackbar.make(view, getString(R.string.snackbar_started_scanning), Snackbar.LENGTH_LONG).show();
+                //fab.setAnimation(animation);
+            } else {
+                bleTracker.stop();
+                Snackbar.make(view, getString(R.string.snackbar_stopped_scanning), Snackbar.LENGTH_LONG).show();
+                //fab.setAnimation(null);
             }
         });
 
@@ -209,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void sendNotification() {
-        if(!bleTracker.getBleTrackerPreferences().isShowBeaconNotifications())
+        if(!bleTracker.getPreferences().isShowBeaconNotifications())
             return;
 
 

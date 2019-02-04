@@ -20,13 +20,11 @@ public class RangeNotifierImpl implements RangeNotifier {
 
     private static final String TAG = "RangeNotifierImpl";
     private final ArrayList<BeaconStateNotifier> stateNotifiers;
-    private final Context context;
     private final SimpleBeaconParser parser;
     private ArrayList<RemoteConnection> customConnections = new ArrayList<>();
-    private RemoteConnection cispaConnection = null;
+    private RemoteConnection cispaConnection;
 
     RangeNotifierImpl(Context context, ArrayList<BeaconStateNotifier> stateNotifiers, RemoteConnection cispaConnecition) {
-        this.context = context;
         this.stateNotifiers = stateNotifiers;
         this.cispaConnection = cispaConnecition;
         parser = new SimpleBeaconParser(context);

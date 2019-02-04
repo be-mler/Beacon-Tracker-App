@@ -16,7 +16,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
 
-    //TODO: take a look at https://github.com/XinyueZ/preference-demo
-    //TODO: take a look at https://developer.android.com/guide/topics/ui/settings/
-    //TODO: Use BleTrackerPreferences to share preferences with lib
+    //take a look at https://github.com/XinyueZ/preference-demo
+    //take a look at https://developer.android.com/guide/topics/ui/settings/
+    //Use BleTrackerPreferences to share preferences with lib
 }

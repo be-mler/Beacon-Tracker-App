@@ -9,6 +9,7 @@ import saarland.cispa.bletrackerlib.helper.BluetoothHelper;
 import saarland.cispa.bletrackerlib.helper.LocationHelper;
 import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
+import saarland.cispa.bletrackerlib.remote.RemotePreferences;
 import saarland.cispa.bletrackerlib.remote.SendMode;
 import saarland.cispa.bletrackerlib.service.BleTrackerService;
 import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
@@ -16,15 +17,11 @@ import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
 public class BleTracker {
 
     private static BleTracker bleTracker;
+    private static BleTrackerPreferences preferences = new BleTrackerPreferences();
+
     private BleTrackerService service;
     private final ArrayList<BeaconStateNotifier> beaconNotifiers = new ArrayList<>();
     private final ArrayList<ServiceStateNotifier> serviceNotifiers = new ArrayList<>();
-
-    public BleTrackerPreferences getBleTrackerPreferences() {
-        return bleTrackerPreferences;
-    }
-
-    private  BleTrackerPreferences bleTrackerPreferences;
 
     private RemoteConnection cispaConnection;
 
@@ -41,13 +38,23 @@ public class BleTracker {
      */
     public void init(Activity activity, BleTrackerPreferences preferences) {
         updateActivity(activity);
-        bleTrackerPreferences = preferences;
-        bleTrackerPreferences.LoadSettings(activity);
+        BleTracker.preferences = preferences;
+        RemotePreferences remotePreferences = new RemotePreferences();
+        if (preferences.isSendToCispa()) {
+            remotePreferences.setSendMode(SendMode.DO_ONLY_SEND_IF_BEACONS_HAVE_GPS);
+        } else {
+            remotePreferences.setSendMode(SendMode.DO_NOT_SEND_BEACONS);
+        }
+        cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon",
+                service.getApplicationContext(), remotePreferences);
+    }
 
-            cispaConnection = new RemoteConnection("https://ble.faber.rocks/api/beacon",
-                    service.getApplicationContext(), preferences);
-
-
+    /**
+     * Gets the specified preferences
+     * @return the preferences
+     */
+    public BleTrackerPreferences getPreferences() {
+        return preferences;
     }
 
     /**
