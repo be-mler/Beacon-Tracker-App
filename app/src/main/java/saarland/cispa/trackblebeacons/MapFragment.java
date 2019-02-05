@@ -9,12 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
+import org.osmdroid.tileprovider.cachemanager.CacheManager;
+import org.osmdroid.tileprovider.constants.OpenStreetMapTileProviderConstants;
+import org.osmdroid.tileprovider.modules.TileDownloader;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.CustomZoomButtonsController;
@@ -28,6 +32,7 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +40,7 @@ import androidx.fragment.app.Fragment;
 import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.remote.RemoteRequestReceiver;
+import saarland.cispa.trackblebeacons.helpers.MapHelper;
 
 public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemGestureListener {
 
@@ -75,12 +81,20 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
     private void initMap()
     {
 
+
         //ext 2 Lines recommended by OsmDroid
         Context ctx = this.getActivity().getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
         map = rootView.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
+
+        MapHelper.getInstance().InitMapHelper(
+                getActivity(),map.getTileProvider(),new CacheManager(map)
+        );
+
+
+
 
         map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.ALWAYS);
 
@@ -161,6 +175,7 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
 
         loadBeacons();
 
+
     }
 
 
@@ -234,6 +249,12 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
 
     @Override
     public boolean onItemLongPress(int index, Object item) {
+
+
         return false;
     }
+
+
+
+
 }

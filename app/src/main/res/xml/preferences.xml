@@ -1,7 +1,11 @@
-<androidx.preference.PreferenceScreen
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+
+   >
+
+
 
     <SwitchPreferenceCompat
+
         app:key="switch_showBeaconNotifications"
         app:title="Beacon Notifications"/>
 
@@ -9,10 +13,21 @@
         app:key="switch_sendToCispa"
         app:title="Submit Discovered Beacons"/>
 
+    <SwitchPreferenceCompat
+        app:key="onlineMaps"
+        app:title="Use online Maps"
+        app:summary="Use online maps if not cached"/>
+
+    <Preference
+        app:key="download"
+        app:title="Download Offline Maps"
+        app:summary="Downloads a basic offline map around you for 7 Days"/>
 
     <Preference
         app:key="feedback"
         app:title="Send feedback"
         app:summary="Report technical issues or suggest new features"/>
+
+
 
 </androidx.preference.PreferenceScreen>
