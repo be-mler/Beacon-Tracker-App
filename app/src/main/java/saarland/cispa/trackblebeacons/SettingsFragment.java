@@ -51,7 +51,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
         download.setOnPreferenceClickListener(preference -> {
-            if( !MapHelper.getInstance().dlSurroundingMapArea(1))
+            if( !MapHelper.getInstance().dlSurroundingMapArea(2000))
             {
                 Toast.makeText(getActivity(), "Can't access current location", Toast.LENGTH_LONG).show();
             }

@@ -9,6 +9,7 @@
     <string name="notification_channel_name">Default Channel</string>
     <string name="notification_channel_description">Default Channel</string>
     <string name="btn_gps_fixed">Center map to my position</string>
+    <string name="btn_zoom_default">Default zoom</string>
     <string name="tab_map_text">Map</string>
     <string name="tab_nearby_text">Nearby</string>
     <string name="tab_scan_text">Scan</string>

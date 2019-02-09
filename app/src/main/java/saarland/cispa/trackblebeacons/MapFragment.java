@@ -47,10 +47,13 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
     private MapView map = null;
     private MyLocationNewOverlay myLocationOverlay;
     private ImageButton btnFollowMe;
+    private View btnZoomDefault;
 
     private ItemizedOverlayWithFocus<OverlayItem> beaconsOverlay;
 
-    private final float DEFAULT_ZOOM_LEVEL = 20.0F;
+    private final double DEFAULT_ZOOM_LEVEL = 18;
+    private final double MAX_ZOOM_LEVEL = 20;
+
     private static final String TAG = "MapFragment";
 
     private View rootView = null;
@@ -88,13 +91,10 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
 
         map = rootView.findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
-
-        MapHelper.getInstance().InitMapHelper(
-                getActivity(),map.getTileProvider(),new CacheManager(map)
-        );
+        map.setMaxZoomLevel(MAX_ZOOM_LEVEL);
 
 
-
+        MapHelper.getInstance().InitMapHelper(getActivity(), map);
 
         map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.ALWAYS);
 
@@ -124,15 +124,21 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
         btnFollowMe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "btnFollowMe clicked");
                 if (!myLocationOverlay.isFollowLocationEnabled()) {
                     myLocationOverlay.enableFollowLocation();
-                    mapController.setZoom(DEFAULT_ZOOM_LEVEL);
                     btnFollowMe.setImageResource(R.drawable.ic_gps_fixed);
                 } else {
                     myLocationOverlay.disableFollowLocation();
                     btnFollowMe.setImageResource(R.drawable.ic_gps_not_fixed);
                 }
+            }
+        });
+
+        btnZoomDefault = rootView.findViewById(R.id.ic_zoom_default);
+        btnZoomDefault.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mapController.setZoom(DEFAULT_ZOOM_LEVEL);
             }
         });
 
