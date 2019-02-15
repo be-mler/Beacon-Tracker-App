@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:launchMode="singleInstance"
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -29,8 +29,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".IntroActivity" android:description="@string/app_name"></activity>
-        <activity android:name=".SettingsActivity" android:description="@string/action_settings"></activity>
+        <activity android:name=".activities.IntroActivity" android:description="@string/app_name"></activity>
+        <activity android:name=".activities.SettingsActivity" android:description="@string/action_settings"></activity>
     </application>
 
 </manifest>

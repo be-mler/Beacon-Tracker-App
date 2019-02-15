@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.exceptions.ParseException;
 import saarland.cispa.bletrackerlib.parser.SimpleBeaconParser;
@@ -22,11 +23,9 @@ public class RangeNotifierImpl implements RangeNotifier {
     private final ArrayList<BeaconStateNotifier> stateNotifiers;
     private final SimpleBeaconParser parser;
     private ArrayList<RemoteConnection> customConnections = new ArrayList<>();
-    private RemoteConnection cispaConnection;
 
-    RangeNotifierImpl(Context context, ArrayList<BeaconStateNotifier> stateNotifiers, RemoteConnection cispaConnecition) {
+    RangeNotifierImpl(Context context, ArrayList<BeaconStateNotifier> stateNotifiers) {
         this.stateNotifiers = stateNotifiers;
-        this.cispaConnection = cispaConnecition;
         parser = new SimpleBeaconParser(context);
 
     }
@@ -64,7 +63,7 @@ public class RangeNotifierImpl implements RangeNotifier {
      * @param simpleBeacons the simple beacons
      */
     private void sendAll(List<SimpleBeacon> simpleBeacons) {
-
+        RemoteConnection cispaConnection = BleTracker.getInstance().getCispaConnection();
         if (cispaConnection != null) {
             cispaConnection.sendAllBeacons(simpleBeacons);
         }

@@ -1,11 +1,11 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.activities;
 
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import saarland.cispa.trackblebeacons.fragments.MapFragment;
+import saarland.cispa.trackblebeacons.fragments.NearbyFragment;
+import saarland.cispa.trackblebeacons.fragments.ScanFragment;
 
 public class PagerAdapter extends FragmentPagerAdapter {
     private int mNumOfTabs;

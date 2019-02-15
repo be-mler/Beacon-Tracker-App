@@ -1,4 +1,4 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.activities;
 
 import android.Manifest;
 import android.content.SharedPreferences;
@@ -12,6 +12,7 @@ import com.github.paolorotolo.appintro.model.SliderPage;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import saarland.cispa.trackblebeacons.R;
 
 
 public class IntroActivity extends AppIntro {

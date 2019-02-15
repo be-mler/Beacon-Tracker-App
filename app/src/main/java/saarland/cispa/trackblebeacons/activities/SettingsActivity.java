@@ -1,8 +1,10 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.activities;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import saarland.cispa.trackblebeacons.R;
+import saarland.cispa.trackblebeacons.fragments.SettingsFragment;
 import saarland.cispa.trackblebeacons.helpers.MapHelper;
 
 public class SettingsActivity extends AppCompatActivity {

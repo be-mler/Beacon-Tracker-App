@@ -1,4 +1,4 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,8 +10,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.net.URI;
-import java.net.URL;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
@@ -23,6 +21,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.parser.DateParser;
+import saarland.cispa.trackblebeacons.R;
 import saarland.cispa.trackblebeacons.helpers.CountHelper;
 
 import static saarland.cispa.bletrackerlib.data.SimpleBeaconLayouts.ALTBEACON_LAYOUT;

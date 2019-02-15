@@ -7,13 +7,15 @@ import android.preference.PreferenceManager;
 import saarland.cispa.bletrackerlib.remote.SendMode;
 
 public class BleTrackerPreferences {
+    private static final int CISAP_LOCATION_FRESHNESS_MINIMUM = 1000 * 10;
+    private static final int CISAP_LOCATION_ACCURACY_MINIMUM = 50;
 
     //TODO: include all preferences
     private boolean sendToCispa = true;
-    private boolean showBeaconNotifications = true;
     private int scanInterval = 1000;
-    private int locationAccuracy = 50;
-    private int locationFreshness = 1000 * 30;
+    private int locationAccuracy = CISAP_LOCATION_ACCURACY_MINIMUM;
+    private int locationFreshness = CISAP_LOCATION_FRESHNESS_MINIMUM;
+
 
 
     /**
@@ -32,22 +34,6 @@ public class BleTrackerPreferences {
      */
     public void setSendToCispa(boolean sendToCispa) {
         this.sendToCispa = sendToCispa;
-    }
-
-    /**
-     * Are notifications shown?
-     * @return true if they are false if not
-     */
-    public boolean isShowBeaconNotifications() {
-        return showBeaconNotifications;
-    }
-
-    /**
-     * Do you want to show notifications
-     * @param showBeaconNotifications true if yes, false if not
-     */
-    public void setShowBeaconNotifications(boolean showBeaconNotifications) {
-        this.showBeaconNotifications = showBeaconNotifications;
     }
 
     /**
@@ -84,6 +70,9 @@ public class BleTrackerPreferences {
      */
     public void setLocationAccuracy(int locationAccuracy) {
         this.locationAccuracy = locationAccuracy;
+        if (locationAccuracy > CISAP_LOCATION_ACCURACY_MINIMUM) {
+            sendToCispa = false;
+        }
     }
 
     /**
@@ -102,34 +91,29 @@ public class BleTrackerPreferences {
      */
     public void setLocationFreshness(int locationFreshness) {
         this.locationFreshness = locationFreshness;
+        if (locationFreshness > CISAP_LOCATION_FRESHNESS_MINIMUM) {
+            sendToCispa = false;
+        }
     }
 
     public BleTrackerPreferences() {
 
     }
 
-    public BleTrackerPreferences(boolean sendToCispa, boolean showBeaconNotifications) {
+    public BleTrackerPreferences(boolean sendToCispa) {
         this.sendToCispa = sendToCispa;
-        this.showBeaconNotifications = showBeaconNotifications;
     }
 
-    public void LoadSettings(Context context)
+    public void load(Context context)
     {
         SharedPreferences prefManager = PreferenceManager.getDefaultSharedPreferences(context);
         sendToCispa = prefManager.getBoolean("sendToCispa", true);
-        showBeaconNotifications = prefManager.getBoolean("showBeaconNotifications", true);
-        //minConfirmations = prefManager.getInt("minConfirmations", 1);
 
     }
-    public void SaveSettings(Context context)
+    public void save(Context context)
     {
         SharedPreferences.Editor e = PreferenceManager.getDefaultSharedPreferences(context).edit();
         e.putBoolean("sendToCispa", sendToCispa);
-        e.putBoolean("showBeaconNotifications", showBeaconNotifications);
-        //e.putInt("minConfirmations", minConfirmations);
         e.apply();
     }
-
-
-
 }

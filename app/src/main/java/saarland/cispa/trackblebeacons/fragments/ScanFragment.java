@@ -1,4 +1,4 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,6 +18,8 @@ import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.ServiceStateNotifier;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
+import saarland.cispa.trackblebeacons.activities.BeaconRecyclerViewAdapter;
+import saarland.cispa.trackblebeacons.R;
 
 public class ScanFragment extends Fragment {
 

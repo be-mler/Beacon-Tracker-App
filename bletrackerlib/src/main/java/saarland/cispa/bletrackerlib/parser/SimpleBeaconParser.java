@@ -30,7 +30,7 @@ public class SimpleBeaconParser implements LocationListener {
         this.context = context;
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, preferences.getLocationFreshness() / 3, -1, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, preferences.getLocationFreshness(), -1, this);
         }
     }
 

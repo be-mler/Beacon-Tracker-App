@@ -1,4 +1,4 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.activities;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -13,7 +13,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -32,6 +31,8 @@ import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
 import saarland.cispa.bletrackerlib.helper.ForegroundNotification;
+import saarland.cispa.trackblebeacons.Preferences;
+import saarland.cispa.trackblebeacons.R;
 import saarland.cispa.trackblebeacons.helpers.CustomViewPager;
 
 
@@ -46,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String FIRST_START_PROPERTY_KEY = "firstStart";
     private PagerAdapter pagerAdapter;
     private CustomViewPager viewPager;
-
 
     private void showIntroAtFirstStart() {
         //  Declare a new thread to do a preference check
@@ -206,9 +206,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void sendNotification() {
-        if(!bleTracker.getPreferences().isShowBeaconNotifications())
+        if(!Preferences.isShowBeaconNotifications())
             return;
-
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

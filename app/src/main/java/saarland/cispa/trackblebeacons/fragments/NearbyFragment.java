@@ -1,4 +1,4 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.fragments;
 
 import android.Manifest;
 import android.content.Context;
@@ -25,6 +25,8 @@ import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.helper.LocationHelper;
 import saarland.cispa.bletrackerlib.remote.RemoteRequestReceiver;
+import saarland.cispa.trackblebeacons.activities.BeaconRecyclerViewAdapter;
+import saarland.cispa.trackblebeacons.R;
 import saarland.cispa.trackblebeacons.helpers.DistanceCalculator;
 
 import static androidx.core.content.ContextCompat.checkSelfPermission;

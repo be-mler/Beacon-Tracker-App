@@ -13,12 +13,12 @@ import org.altbeacon.beacon.startup.RegionBootstrap;
 
 import java.util.ArrayList;
 
+import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 
 public final class BleTrackerService extends Application implements BootstrapNotifier {
 
     private static final String TAG = "BleTrackerService";
-    private RemoteConnection cispaConnection;
     private BeaconManager beaconManager;
     private final Region region = new Region("AllBeaconsRegion", null, null, null);
     private RegionBootstrap regionBootstrap;
@@ -38,17 +38,15 @@ public final class BleTrackerService extends Application implements BootstrapNot
     /**
      * Creates a service which operates in background
      * Do not change the order of the calls in this constructor without knowing what you are doing!
-     * @param cispaConnection the connection to cispa
      * @param stateNotifiers notification callbacks
      */
-    public void createBackgroundService(RemoteConnection cispaConnection, ArrayList<BeaconStateNotifier> stateNotifiers) {
-        this.cispaConnection = cispaConnection;
+    public void createBackgroundService(ArrayList<BeaconStateNotifier> stateNotifiers) {
         this.stateNotifiers = stateNotifiers;
-        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers, cispaConnection);
+        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers);
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
 
-        backgroundPowerSaver = new BackgroundPowerSaver(this);
+        //backgroundPowerSaver = new BackgroundPowerSaver(this);
 
         beaconManager.addRangeNotifier(rangeNotifier);
 
@@ -59,14 +57,12 @@ public final class BleTrackerService extends Application implements BootstrapNot
     /**
      * Creates a service which also operates in background but will never go asleep
      * Do not change the order of the calls in this constructor without knowing what you are doing!
-     * @param cispaConnection the connection to cispa
      * @param stateNotifiers notification callback
      * @param notification a notification shown if the service is running
      */
-    public void createForegroundService(RemoteConnection cispaConnection, ArrayList<BeaconStateNotifier> stateNotifiers, Notification notification) {
-        this.cispaConnection = cispaConnection;
+    public void createForegroundService(ArrayList<BeaconStateNotifier> stateNotifiers, Notification notification) {
         this.stateNotifiers = stateNotifiers;
-        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers, cispaConnection);
+        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers);
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
 
@@ -74,7 +70,7 @@ public final class BleTrackerService extends Application implements BootstrapNot
         beaconManager.enableForegroundServiceScanning(notification, 456);
         beaconManager.setEnableScheduledScanJobs(false);
         beaconManager.setBackgroundBetweenScanPeriod(0);
-        beaconManager.setBackgroundScanPeriod(1000);
+        beaconManager.setBackgroundScanPeriod(BleTracker.getInstance().getPreferences().getScanInterval());
 
         backgroundPowerSaver = null;
 
@@ -85,6 +81,8 @@ public final class BleTrackerService extends Application implements BootstrapNot
         simulator = ((TimedBeaconSimulator) BeaconManager.getBeaconSimulator());
         simulator.createTimedSimulatedBeacons();
         beaconManager.setDebug(true);
+
+
         beaconManager.addRangeNotifier(rangeNotifier);
 
         // Set the Layout of the beacons to which are we listening to

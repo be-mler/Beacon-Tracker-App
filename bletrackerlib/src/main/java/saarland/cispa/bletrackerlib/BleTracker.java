@@ -92,13 +92,16 @@ public class BleTracker {
     /**
      * Creates a background service which operates in the background and gets called from time to time by the system
      * This causes low battery drain but also the refresh rate is low
+     * Also this will NOT! send to CISPA because of too low accuracy
      * @throws OtherServiceStillRunningException if an old service is still running. Stop old service first before creating a new one
      */
     public void createBackgroundService() throws OtherServiceStillRunningException {
         if (isRunning()) {
             throw new OtherServiceStillRunningException();
         }
-        service.createBackgroundService(cispaConnection, beaconNotifiers);
+        preferences.setSendToCispa(false);
+        cispaConnection.getRemotePreferences().setSendMode(SendMode.DO_NOT_SEND_BEACONS);
+        service.createBackgroundService(beaconNotifiers);
     }
 
     /**
@@ -112,7 +115,7 @@ public class BleTracker {
         if (isRunning()) {
             throw new OtherServiceStillRunningException();
         }
-        service.createForegroundService(cispaConnection, beaconNotifiers, foregroundNotification);
+        service.createForegroundService(beaconNotifiers, foregroundNotification);
     }
 
     /**

@@ -1,20 +1,17 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.fragments;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import org.osmdroid.tileprovider.cachemanager.CacheManager;
-import org.osmdroid.util.GeoPoint;
-
-import java.util.ArrayList;
-
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.BleTrackerPreferences;
+import saarland.cispa.trackblebeacons.Preferences;
+import saarland.cispa.trackblebeacons.R;
 import saarland.cispa.trackblebeacons.helpers.MapHelper;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
@@ -23,7 +20,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
         BleTrackerPreferences bleTrackerPreferences = BleTracker.getInstance().getPreferences();
-        bleTrackerPreferences.LoadSettings(this.getActivity());
+        bleTrackerPreferences.load(this.getActivity());
         SwitchPreferenceCompat switch_sendToCispa = (SwitchPreferenceCompat)findPreference("switch_sendToCispa");
         SwitchPreferenceCompat switch_showBeaconNotifications = (SwitchPreferenceCompat)findPreference("switch_showBeaconNotifications");
         SwitchPreferenceCompat onlineMaps = (SwitchPreferenceCompat)findPreference("onlineMaps");
@@ -32,12 +29,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         switch_sendToCispa.setOnPreferenceClickListener(preference -> {
             bleTrackerPreferences.setSendToCispa(((SwitchPreferenceCompat)preference).isChecked());
-            bleTrackerPreferences.SaveSettings(this.getActivity());
+            bleTrackerPreferences.save(this.getActivity());
             return true;
         });
         switch_showBeaconNotifications.setOnPreferenceClickListener(preference -> {
-            bleTrackerPreferences.setShowBeaconNotifications(((SwitchPreferenceCompat)preference).isChecked());
-            bleTrackerPreferences.SaveSettings(this.getActivity());
+            Preferences.setShowBeaconNotifications(((SwitchPreferenceCompat)preference).isChecked());
+            bleTrackerPreferences.save(this.getActivity());
             return true;
         });
 
@@ -60,7 +57,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 
         switch_sendToCispa.setChecked(bleTrackerPreferences.isSendToCispa());
-        switch_showBeaconNotifications.setChecked(bleTrackerPreferences.isShowBeaconNotifications());
+        switch_showBeaconNotifications.setChecked(Preferences.isShowBeaconNotifications());
         onlineMaps.setChecked(MapHelper.getInstance().isMapOnline());
 
 

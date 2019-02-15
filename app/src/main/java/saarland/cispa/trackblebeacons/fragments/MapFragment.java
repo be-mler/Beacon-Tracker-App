@@ -1,4 +1,4 @@
-package saarland.cispa.trackblebeacons;
+package saarland.cispa.trackblebeacons.fragments;
 
 import android.content.Context;
 import android.location.LocationManager;
@@ -40,6 +40,7 @@ import androidx.fragment.app.Fragment;
 import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.remote.RemoteRequestReceiver;
+import saarland.cispa.trackblebeacons.R;
 import saarland.cispa.trackblebeacons.helpers.MapHelper;
 
 public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemGestureListener {
