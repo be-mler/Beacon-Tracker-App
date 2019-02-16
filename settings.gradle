@@ -1,1 +1,1 @@
-include ':app', ':bletrackerlib'
+include ':app'
