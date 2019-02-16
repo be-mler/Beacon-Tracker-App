@@ -6,9 +6,9 @@ The BLE Tracker Lib is an android app to track Bluetooth Low Energy (BLE) Beacon
 We are two cybersecurity students from [CISPA](https://cispa.saarland/). Our motivation is to get a view where and how much BLE trackers used for benign reasons and or tracking you. 
 
 ## Screenshots ##
-<img src="https://github.com/be-mler/Beacon-Tracker-Lib/screenshots/map?raw=true" height="500">
-<img src="https://github.com/be-mler/Beacon-Tracker-Lib/screenshots/nearby?raw=true" height="500">
-<img src="https://github.com/be-mler/Beacon-Tracker-Lib/screenshots/scan?raw=true" height="500">
+<img src="https://github.com/be-mler/Beacon-Tracker-App/blob/master/screenshots/map.png?raw=true" height="500">
+<img src="https://github.com/be-mler/Beacon-Tracker-App/blob/master/screenshots/nearby.png?raw=true" height="500">
+<img src="https://github.com/be-mler/Beacon-Tracker-App/blob/master/screenshots/scan.png?raw=true" height="500">
 
 ## Features ##
 #### General: ####
