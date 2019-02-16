@@ -83,7 +83,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         intent.putExtra(Intent.EXTRA_EMAIL, addresses);
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
         startActivity(intent);
-
     }
 
 

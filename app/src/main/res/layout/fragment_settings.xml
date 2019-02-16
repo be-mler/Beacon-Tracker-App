@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.SettingsFragment">
+
     <androidx.appcompat.widget.Toolbar
 
         android:id="@+id/toolbar"
@@ -16,6 +17,7 @@
         app:layout_scrollFlags=""
         app:popupTheme="@style/AppTheme.PopupOverlay"
         app:title="@string/app_name"
+        android:theme="@style/AppTheme.AppBarOverlay"
         tools:ignore="MissingConstraints">
 
     </androidx.appcompat.widget.Toolbar>

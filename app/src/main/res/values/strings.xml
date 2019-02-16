@@ -60,5 +60,8 @@
     <string name="snackbar_stopped_scanning">Stopped scanning for beacons</string>
     <string name="no_distance_available">N/A</string>
     <string name="action_share">Share</string>
+    <string name="share_text">With this app you can track bluetooth beacons that are tracking you and see them on a map where others have already found them.\nThis is a research project from CISPA. Our goal is to get an overview how and where beacons are.\nTake a look at:\nhttps://github.com/be-mler/Beacon-Tracker-App</string>
+    <string name="share_subject">Support us for privacy</string>
+    <string name="share_via">Share via</string>
 
 </resources>

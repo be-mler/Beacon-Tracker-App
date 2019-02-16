@@ -202,6 +202,11 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if (id == R.id.action_share) {
+            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+            sharingIntent.setType("text/plain");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
+            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.share_text));
+            startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_via)));
             return true;
         }
 
