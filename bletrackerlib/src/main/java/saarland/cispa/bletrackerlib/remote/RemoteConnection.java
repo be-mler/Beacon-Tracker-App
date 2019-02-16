@@ -185,20 +185,4 @@ public class RemoteConnection {
     public void clearRemoteReceivers() {
         remoteRequestReceivers.clear();
     }
-
-    /**
-     * gets the actual used preferences
-     * @return the remote preferences
-     */
-    public RemotePreferences getRemotePreferences() {
-        return remotePreferences;
-    }
-
-    /**
-     * sets the actual used preferences
-     * @param remotePreferences the new remote preferences
-     */
-    public void setRemotePreferences(RemotePreferences remotePreferences) {
-        this.remotePreferences = remotePreferences;
-    }
 }

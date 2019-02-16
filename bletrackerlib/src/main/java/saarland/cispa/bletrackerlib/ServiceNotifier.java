@@ -1,6 +1,6 @@
 package saarland.cispa.bletrackerlib;
 
-public interface ServiceStateNotifier {
+public interface ServiceNotifier {
     void onStop();
     void onStart();
 }

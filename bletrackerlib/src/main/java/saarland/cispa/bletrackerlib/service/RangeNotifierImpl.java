@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 import saarland.cispa.bletrackerlib.exceptions.ParseException;
 import saarland.cispa.bletrackerlib.parser.SimpleBeaconParser;
@@ -20,11 +19,19 @@ import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 public class RangeNotifierImpl implements RangeNotifier {
 
     private static final String TAG = "RangeNotifierImpl";
-    private final ArrayList<BeaconStateNotifier> stateNotifiers;
+    private final ArrayList<BeaconNotifier> stateNotifiers;
     private final SimpleBeaconParser parser;
     private ArrayList<RemoteConnection> customConnections = new ArrayList<>();
+    private RemoteConnection cispaConnection;
 
-    RangeNotifierImpl(Context context, ArrayList<BeaconStateNotifier> stateNotifiers) {
+    /**
+     * A RangeNotifier which starts parsing if beacons are near
+     * @param context a context
+     * @param stateNotifiers the callbacks
+     * @param cispaConnection the cispaConnection
+     */
+    RangeNotifierImpl(Context context, ArrayList<BeaconNotifier> stateNotifiers, RemoteConnection cispaConnection) {
+        this.cispaConnection = cispaConnection;
         this.stateNotifiers = stateNotifiers;
         parser = new SimpleBeaconParser(context);
 
@@ -52,7 +59,7 @@ public class RangeNotifierImpl implements RangeNotifier {
         }
         if (simpleBeacons.size() > 0) {
             sendAll(simpleBeacons);
-            for (BeaconStateNotifier stateNotifier : stateNotifiers) {
+            for (BeaconNotifier stateNotifier : stateNotifiers) {
                 stateNotifier.onUpdate(simpleBeacons);
             }
         }
@@ -63,7 +70,6 @@ public class RangeNotifierImpl implements RangeNotifier {
      * @param simpleBeacons the simple beacons
      */
     private void sendAll(List<SimpleBeacon> simpleBeacons) {
-        RemoteConnection cispaConnection = BleTracker.getInstance().getCispaConnection();
         if (cispaConnection != null) {
             cispaConnection.sendAllBeacons(simpleBeacons);
         }

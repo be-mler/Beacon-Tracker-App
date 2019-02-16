@@ -23,8 +23,8 @@ public final class BleTrackerService extends Application implements BootstrapNot
     private final Region region = new Region("AllBeaconsRegion", null, null, null);
     private RegionBootstrap regionBootstrap;
     private BackgroundPowerSaver backgroundPowerSaver;
-    private ArrayList<BeaconStateNotifier> stateNotifiers;
     private RangeNotifierImpl rangeNotifier;
+    private ArrayList<BeaconNotifier> stateNotifiers;
 
     public BleTrackerService() {
 
@@ -39,10 +39,11 @@ public final class BleTrackerService extends Application implements BootstrapNot
      * Creates a service which operates in background
      * Do not change the order of the calls in this constructor without knowing what you are doing!
      * @param stateNotifiers notification callbacks
+     * @param cispaConnection the cispaConnection
      */
-    public void createBackgroundService(ArrayList<BeaconStateNotifier> stateNotifiers) {
+    public void createBackgroundService(ArrayList<BeaconNotifier> stateNotifiers, RemoteConnection cispaConnection) {
         this.stateNotifiers = stateNotifiers;
-        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers);
+        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers, cispaConnection);
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
 
@@ -59,10 +60,11 @@ public final class BleTrackerService extends Application implements BootstrapNot
      * Do not change the order of the calls in this constructor without knowing what you are doing!
      * @param stateNotifiers notification callback
      * @param notification a notification shown if the service is running
+     * @param cispaConnection the cispaConnection
      */
-    public void createForegroundService(ArrayList<BeaconStateNotifier> stateNotifiers, Notification notification) {
+    public void createForegroundService(ArrayList<BeaconNotifier> stateNotifiers, Notification notification, RemoteConnection cispaConnection) {
         this.stateNotifiers = stateNotifiers;
-        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers);
+        this.rangeNotifier = new RangeNotifierImpl(this, stateNotifiers, cispaConnection);
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
 
@@ -70,7 +72,7 @@ public final class BleTrackerService extends Application implements BootstrapNot
         beaconManager.enableForegroundServiceScanning(notification, 456);
         beaconManager.setEnableScheduledScanJobs(false);
         beaconManager.setBackgroundBetweenScanPeriod(0);
-        beaconManager.setBackgroundScanPeriod(BleTracker.getInstance().getPreferences().getScanInterval());
+        beaconManager.setBackgroundScanPeriod(BleTracker.getPreferences().getScanInterval());
 
         backgroundPowerSaver = null;
 
@@ -103,7 +105,7 @@ public final class BleTrackerService extends Application implements BootstrapNot
         } catch (RemoteException e) {
             Log.e(TAG, e.getMessage(), e);
         }
-        for (BeaconStateNotifier stateNotifier : stateNotifiers) {
+        for (BeaconNotifier stateNotifier : stateNotifiers) {
             stateNotifier.onBeaconNearby();
         }
     }

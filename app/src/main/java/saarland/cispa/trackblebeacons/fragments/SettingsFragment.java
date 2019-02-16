@@ -19,7 +19,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
-        BleTrackerPreferences bleTrackerPreferences = BleTracker.getInstance().getPreferences();
+        BleTrackerPreferences bleTrackerPreferences = BleTracker.getPreferences();
         bleTrackerPreferences.load(this.getActivity());
         SwitchPreferenceCompat switch_sendToCispa = (SwitchPreferenceCompat)findPreference("switch_sendToCispa");
         SwitchPreferenceCompat switch_showBeaconNotifications = (SwitchPreferenceCompat)findPreference("switch_showBeaconNotifications");

@@ -3,14 +3,11 @@ package saarland.cispa.bletrackerlib.parser;
 import android.content.Context;
 import android.util.Log;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import androidx.core.content.ContextCompat;
 
 public class DateParser {
 

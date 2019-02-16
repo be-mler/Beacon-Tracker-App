@@ -23,7 +23,7 @@ public class SimpleBeaconParser implements LocationListener {
 
     private static final String TAG = "SimpleBeaconLayouts";
 
-    private BleTrackerPreferences preferences = BleTracker.getInstance().getPreferences();
+    private BleTrackerPreferences preferences = BleTracker.getPreferences();
     private Context context;
 
     public SimpleBeaconParser(Context context) {

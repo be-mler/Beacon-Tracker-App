@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
 
-public interface BeaconStateNotifier {
+public interface BeaconNotifier {
     /**
      * Callback which returns all nearby beacons
      * Can be used to display live updates inside the app

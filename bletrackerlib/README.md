@@ -1,7 +1,7 @@
 # BLE Tracker Lib
 ## Intro
 The BLE Tracker Lib is an android app library to easyly track Bluetooth Low Energy (BLE) Beacons. Track in this case means if there is a beacon nearby this lib recognizes it, adds a GPS location to it and sends it to a rest endpoint.
-We also provide an **App** using this lib.
+We also provide an [App](todo)  using this lib.
 
 ## Motivation
 We are two cybersecurity students from [CISPA](https://cispa.saarland/). Our motivation is to get a view where and how much BLE trackers used for benign reasons and or tracking you. We want to provide you the ability to include this in your app and help tracking beacons or to 
@@ -9,8 +9,8 @@ We are two cybersecurity students from [CISPA](https://cispa.saarland/). Our mot
 #### General:
 - Backgound Tracking (Low power consumption but less accurate)
 - Forground Tracking (Higher power consumption but very accurate)
-- Send to one ore more REST endpoints
-- Send to CISPA REST endpoint
+- Send/receive to/from one ore more REST endpoints
+- Send/receive to/from CISPA REST endpoint
 #### Supported beacons: 
 - iBeacons 
 - AltBeacons
@@ -23,7 +23,7 @@ We are two cybersecurity students from [CISPA](https://cispa.saarland/). Our mot
 - At least API level 21.
 
 ### Include+Basic
-####1. Into your gradle
+#### 1. Into your gradle
 
 Step 1. Add the jitpack repository to yourroot build.gradle at the end of repositories:
 ```gradle
@@ -41,13 +41,13 @@ Step 2. Add the dependancy:
 		implementation 'com.github.User:Repo:Tag'
 	}
 ```
-####2. Into your project
+#### 2. Into your project
 
 Step 1. Change the application context in your AndroidManifest.xml to **BleTrackerService**
 ```xml
 	<application
 		android:name="saarland.cispa.bletrackerlib.service.BleTrackerService"
-		...
+		...>
 	</application>
 ```
 
@@ -61,7 +61,7 @@ bleTracker.init(MainActivity.this, preferences);
 
 Step 3 (optional). Add a callback to get notified if you there are beacons and beacon data
 ```java
-bleTracker.addBeaconNotifier(new BeaconStateNotifier() {
+bleTracker.addBeaconNotifier(new BeaconNotifier() {
 	@Override
 	public void onUpdate(ArrayList<SimpleBeacon> beacons) {
 		//TODO: Do somethin useful with the tracked beacons which are around you
@@ -115,11 +115,22 @@ This has to be done at initializing the lib by changing the values in **BleTrack
 - location freshness (how old has the last location data has to be that location coordinates are added to the beacons)
 - send to CISPA (do you want that your scanned beacons are sent to us?)
 - scan interval (the interval in which the scanner looks for beacons the higher you set it the lower energy will cost but the less updates you get)
-#### Service state notifies
-
-#### Receive beacons from REST endpoint
-
-#### Send beacons to REST endpoint
+#### Service notifiers
+**ServiceNotifier**s are callbacks you can add after you got an instance of **BleTracker**. This get fired if you start or stop a service and may help you to change thins at certain differnet points in your app depending on if scanning or not.
+```java
+bleTracker.addServiceNotifier(new ServiceNotifier() {
+	@Override
+	public void onStop() {
+		//TODO: Change some icon to not running state
+	}
+	@Override
+	public void onStart() {
+		//TODO: Change some icon running state
+	}
+});
+```
+#### Remote Connections (REST connections)
+You can add your rest connections and specify their sending behaviour via per connection **RemoteSettings**.
 
 #### CISPA Connection
 The CISPA connection is also a REST connection used by default. You can send/receive beacons to/from our endpoint. 
@@ -130,4 +141,12 @@ It will **NOT send** if you use a **background scanner** or change this **BleTra
 This is enforced beacuse we want to have a accurate dataset.
 
 You can also take a look at our example project [example project](todo) or at [our app](todo).
+
+##Libraries
+**We use the following libraries:**
+- **AltBeacon** for parsing beacons
+- **Volley** for REST connection
+- **GSON** for rest data parsing
+- **AppCompact Androidx** for dialogs etc.
+
 ## License

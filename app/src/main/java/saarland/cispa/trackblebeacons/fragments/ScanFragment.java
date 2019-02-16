@@ -15,9 +15,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import saarland.cispa.bletrackerlib.BleTracker;
-import saarland.cispa.bletrackerlib.ServiceStateNotifier;
+import saarland.cispa.bletrackerlib.ServiceNotifier;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
-import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
+import saarland.cispa.bletrackerlib.service.BeaconNotifier;
 import saarland.cispa.trackblebeacons.activities.BeaconRecyclerViewAdapter;
 import saarland.cispa.trackblebeacons.R;
 
@@ -78,7 +78,7 @@ public class ScanFragment extends Fragment {
             showEmptyView(true);
         }
 
-        bleTracker.addServiceNotifier(new ServiceStateNotifier() {
+        bleTracker.addServiceNotifier(new ServiceNotifier() {
             @Override
             public void onStop() {
                 showEmptyView(true);
@@ -90,7 +90,7 @@ public class ScanFragment extends Fragment {
             }
         });
 
-        bleTracker.addBeaconNotifier(new BeaconStateNotifier() {
+        bleTracker.addBeaconNotifier(new BeaconNotifier() {
             @Override
             public void onUpdate(ArrayList<SimpleBeacon> beacons) {
                 adapter.submitList(beacons);

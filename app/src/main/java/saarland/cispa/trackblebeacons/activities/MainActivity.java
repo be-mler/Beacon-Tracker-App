@@ -26,10 +26,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.BleTrackerPreferences;
-import saarland.cispa.bletrackerlib.ServiceStateNotifier;
+import saarland.cispa.bletrackerlib.ServiceNotifier;
 import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
-import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
+import saarland.cispa.bletrackerlib.service.BeaconNotifier;
 import saarland.cispa.bletrackerlib.helper.ForegroundNotification;
 import saarland.cispa.trackblebeacons.Preferences;
 import saarland.cispa.trackblebeacons.R;
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         BleTrackerPreferences preferences = new BleTrackerPreferences();
         bleTracker.init(this, preferences);
 
-        bleTracker.addServiceNotifier(new ServiceStateNotifier() {
+        bleTracker.addServiceNotifier(new ServiceNotifier() {
             @Override
             public void onStop() {
                 switchFabStatus();
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // TODO: Respect settings for operation mode
-        bleTracker.addBeaconNotifier(new BeaconStateNotifier() {
+        bleTracker.addBeaconNotifier(new BeaconNotifier() {
             @Override
             public void onUpdate(ArrayList<SimpleBeacon> beacons) {
 
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy()
     {
         super.onDestroy();
-        bleTracker.updateActivity(null);
+        bleTracker.setActivity(null);
     }
 
     @Override
@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        bleTracker.updateActivity(this);
+        bleTracker.setActivity(this);
         switchFabStatus();
     }
 

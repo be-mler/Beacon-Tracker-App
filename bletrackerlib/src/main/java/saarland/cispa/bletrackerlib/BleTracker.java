@@ -12,7 +12,7 @@ import saarland.cispa.bletrackerlib.remote.RemoteConnection;
 import saarland.cispa.bletrackerlib.remote.RemotePreferences;
 import saarland.cispa.bletrackerlib.remote.SendMode;
 import saarland.cispa.bletrackerlib.service.BleTrackerService;
-import saarland.cispa.bletrackerlib.service.BeaconStateNotifier;
+import saarland.cispa.bletrackerlib.service.BeaconNotifier;
 
 public class BleTracker {
 
@@ -20,8 +20,8 @@ public class BleTracker {
     private static BleTrackerPreferences preferences = new BleTrackerPreferences();
 
     private BleTrackerService service;
-    private final ArrayList<BeaconStateNotifier> beaconNotifiers = new ArrayList<>();
-    private final ArrayList<ServiceStateNotifier> serviceNotifiers = new ArrayList<>();
+    private final ArrayList<ServiceNotifier> serviceNotifiers = new ArrayList<>();
+    private ArrayList<BeaconNotifier> beaconNotifiers = new ArrayList<>();
 
     private RemoteConnection cispaConnection;
 
@@ -33,12 +33,25 @@ public class BleTracker {
     }
 
     /**
-     * Creates the beacon service with the specified operation mode
+     * Creates the beacon service with your settings
      * @param activity The application activity
+     * @param preferences The preferences if you want to use your specific
      */
     public void init(Activity activity, BleTrackerPreferences preferences) {
-        updateActivity(activity);
         BleTracker.preferences = preferences;
+        init(activity);
+    }
+
+    /**
+     * Creates the beacon service with default settings
+     * @param activity The application activity
+     */
+    public void init(Activity activity) {
+        setActivity(activity);
+        initCispaConnection();
+    }
+
+    private void initCispaConnection() {
         RemotePreferences remotePreferences = new RemotePreferences();
         if (preferences.isSendToCispa()) {
             remotePreferences.setSendMode(SendMode.DO_ONLY_SEND_IF_BEACONS_HAVE_GPS);
@@ -53,7 +66,7 @@ public class BleTracker {
      * Gets the specified preferences
      * @return the preferences
      */
-    public BleTrackerPreferences getPreferences() {
+    public static BleTrackerPreferences getPreferences() {
         return preferences;
     }
 
@@ -61,7 +74,7 @@ public class BleTracker {
      * Adds a beaconNotifier which get's called if there are beacons near
      * @param beaconNotifier the callback
      */
-    public void addBeaconNotifier(BeaconStateNotifier beaconNotifier) {
+    public void addBeaconNotifier(BeaconNotifier beaconNotifier) {
         beaconNotifiers.add(beaconNotifier);
     }
 
@@ -69,7 +82,7 @@ public class BleTracker {
      * Adds a serviceNotifier which get's called if the service state changes
      * @param serviceNotifier
      */
-    public void addServiceNotifier(ServiceStateNotifier serviceNotifier) {
+    public void addServiceNotifier(ServiceNotifier serviceNotifier) {
         serviceNotifiers.add(serviceNotifier);
     }
 
@@ -99,9 +112,11 @@ public class BleTracker {
         if (isRunning()) {
             throw new OtherServiceStillRunningException();
         }
+        // CISPA connection get's reinitialized with send mode false set in preferences.
         preferences.setSendToCispa(false);
-        cispaConnection.getRemotePreferences().setSendMode(SendMode.DO_NOT_SEND_BEACONS);
-        service.createBackgroundService(beaconNotifiers);
+        initCispaConnection();
+
+        service.createBackgroundService(beaconNotifiers, cispaConnection);
     }
 
     /**
@@ -115,7 +130,7 @@ public class BleTracker {
         if (isRunning()) {
             throw new OtherServiceStillRunningException();
         }
-        service.createForegroundService(beaconNotifiers, foregroundNotification);
+        service.createForegroundService(beaconNotifiers, foregroundNotification, cispaConnection);
     }
 
     /**
@@ -126,10 +141,7 @@ public class BleTracker {
     public void start(Activity activity) {
         LocationHelper.showDialogIfGpsIsOff(activity);
         BluetoothHelper.showDialogIfBluetoothIsOff(activity);
-        service.enableMonitoring();
-        for (ServiceStateNotifier serviceNotifier : serviceNotifiers) {
-            serviceNotifier.onStart();
-        }
+        startWithoutChecks();
     }
 
     /**
@@ -139,7 +151,7 @@ public class BleTracker {
      */
     public void startWithoutChecks() {
         service.enableMonitoring();
-        for (ServiceStateNotifier serviceNotifier : serviceNotifiers) {
+        for (ServiceNotifier serviceNotifier : serviceNotifiers) {
             serviceNotifier.onStart();
         }
     }
@@ -148,9 +160,8 @@ public class BleTracker {
      * Stops the service
      */
     public void stop() {
-
         service.disableMonitoring();
-        for (ServiceStateNotifier serviceNotifier : serviceNotifiers) {
+        for (ServiceNotifier serviceNotifier : serviceNotifiers) {
             serviceNotifier.onStop();
         }
     }
@@ -164,10 +175,10 @@ public class BleTracker {
     }
 
     /**
-     * Updates the base Activity. Should be called in every Activity.onResume()
+     * Sets the Activity. Should be called in every Activity.onResume()
      * @param activity
      */
-    public void updateActivity(Activity activity) {
+    public void setActivity(Activity activity) {
         if (activity != null) {
             service = (BleTrackerService) activity.getApplicationContext();
         }
