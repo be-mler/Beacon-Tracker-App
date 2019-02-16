@@ -19,7 +19,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
-        BleTrackerPreferences bleTrackerPreferences = BleTracker.getPreferences();
+        final BleTrackerPreferences bleTrackerPreferences = BleTracker.getPreferences();
         bleTrackerPreferences.load(this.getActivity());
         SwitchPreferenceCompat switch_sendToCispa = (SwitchPreferenceCompat)findPreference("switch_sendToCispa");
         SwitchPreferenceCompat switch_showBeaconNotifications = (SwitchPreferenceCompat)findPreference("switch_showBeaconNotifications");
@@ -27,32 +27,46 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         Preference feedback = findPreference("feedback");
         Preference download = findPreference("download");
 
-        switch_sendToCispa.setOnPreferenceClickListener(preference -> {
-            bleTrackerPreferences.setSendToCispa(((SwitchPreferenceCompat)preference).isChecked());
-            bleTrackerPreferences.save(this.getActivity());
-            return true;
-        });
-        switch_showBeaconNotifications.setOnPreferenceClickListener(preference -> {
-            Preferences.setShowBeaconNotifications(((SwitchPreferenceCompat)preference).isChecked());
-            bleTrackerPreferences.save(this.getActivity());
-            return true;
-        });
-
-        onlineMaps.setOnPreferenceClickListener(preference -> {
-            MapHelper.getInstance().setMapOnline(((SwitchPreferenceCompat)preference).isChecked());
-            return true;
-        });
-        feedback.setOnPreferenceClickListener(preference -> {
-            composeEmail(new String[]{"ble-app@cispa.saarland"},"BLE Tracker Feedback");
-            return true;
-        });
-
-        download.setOnPreferenceClickListener(preference -> {
-            if( !MapHelper.getInstance().dlSurroundingMapArea(2000))
-            {
-                Toast.makeText(getActivity(), "Can't access current location", Toast.LENGTH_LONG).show();
+        switch_sendToCispa.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                bleTrackerPreferences.setSendToCispa(((SwitchPreferenceCompat) preference).isChecked());
+                bleTrackerPreferences.save(SettingsFragment.this.getActivity());
+                return true;
             }
-            return true;
+        });
+        switch_showBeaconNotifications.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Preferences.setShowBeaconNotifications(((SwitchPreferenceCompat) preference).isChecked());
+                bleTrackerPreferences.save(SettingsFragment.this.getActivity());
+                return true;
+            }
+        });
+
+        onlineMaps.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                MapHelper.getInstance().setMapOnline(((SwitchPreferenceCompat) preference).isChecked());
+                return true;
+            }
+        });
+        feedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                SettingsFragment.this.composeEmail(new String[]{"ble-app@cispa.saarland"}, "BLE Tracker Feedback");
+                return true;
+            }
+        });
+
+        download.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if (!MapHelper.getInstance().dlSurroundingMapArea(2000)) {
+                    Toast.makeText(SettingsFragment.this.getActivity(), "Can't access current location", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            }
         });
 
 

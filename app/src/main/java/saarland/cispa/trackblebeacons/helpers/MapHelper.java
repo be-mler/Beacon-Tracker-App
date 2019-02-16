@@ -101,7 +101,7 @@ public class MapHelper {
     {
         BoundingBox boundingBox = DistanceCalculator.createBoundingBox(alat, along, range);
 
-        int possibleTiles = cacheManager.possibleTilesInArea(boundingBox, ZOOM_MIN, ZOOM_MAX);
+        final int possibleTiles = cacheManager.possibleTilesInArea(boundingBox, ZOOM_MIN, ZOOM_MAX);
         cacheManager.downloadAreaAsync(activity,boundingBox, ZOOM_MIN, ZOOM_MAX,new CacheManager.CacheManagerCallback() {
             private Toast progressToast = null;
             @Override

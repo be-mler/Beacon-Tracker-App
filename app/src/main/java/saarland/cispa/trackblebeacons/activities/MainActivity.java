@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -133,21 +134,24 @@ public class MainActivity extends AppCompatActivity {
 //        animation.setRepeatCount(-1);
 //        animation.setDuration(2000);
 
-        fab.setOnClickListener(view -> {
-            if (!bleTracker.isRunning()) {
-                Notification notification = ForegroundNotification.create(getApplicationContext(), R.drawable.ic_stat_name, MainActivity.class);
-                try {
-                    bleTracker.createForegroundService(notification);
-                } catch (OtherServiceStillRunningException e) {
-                    e.printStackTrace();
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!bleTracker.isRunning()) {
+                    Notification notification = ForegroundNotification.create(MainActivity.this.getApplicationContext(), R.drawable.ic_stat_name, MainActivity.class);
+                    try {
+                        bleTracker.createForegroundService(notification);
+                    } catch (OtherServiceStillRunningException e) {
+                        e.printStackTrace();
+                    }
+                    bleTracker.start(MainActivity.this);
+                    Snackbar.make(view, MainActivity.this.getString(R.string.snackbar_started_scanning), Snackbar.LENGTH_LONG).show();
+                    //fab.setAnimation(animation);
+                } else {
+                    bleTracker.stop();
+                    Snackbar.make(view, MainActivity.this.getString(R.string.snackbar_stopped_scanning), Snackbar.LENGTH_LONG).show();
+                    //fab.setAnimation(null);
                 }
-                bleTracker.start(MainActivity.this);
-                Snackbar.make(view, getString(R.string.snackbar_started_scanning), Snackbar.LENGTH_LONG).show();
-                //fab.setAnimation(animation);
-            } else {
-                bleTracker.stop();
-                Snackbar.make(view, getString(R.string.snackbar_stopped_scanning), Snackbar.LENGTH_LONG).show();
-                //fab.setAnimation(null);
             }
         });
 
