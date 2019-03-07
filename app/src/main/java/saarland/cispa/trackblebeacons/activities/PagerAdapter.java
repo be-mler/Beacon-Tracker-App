@@ -7,6 +7,9 @@ import saarland.cispa.trackblebeacons.fragments.MapFragment;
 import saarland.cispa.trackblebeacons.fragments.NearbyFragment;
 import saarland.cispa.trackblebeacons.fragments.ScanFragment;
 
+/**
+ * Switching the pages (Nearby, Map, Scan)
+ */
 public class PagerAdapter extends FragmentPagerAdapter {
     private int mNumOfTabs;
     private FragmentManager fm;

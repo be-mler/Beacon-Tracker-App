@@ -14,7 +14,9 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import saarland.cispa.trackblebeacons.R;
 
-
+/**
+ * Shows a nice Welcome Screen at first app start
+ */
 public class IntroActivity extends AppIntro {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

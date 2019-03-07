@@ -37,6 +37,11 @@ public class MapHelper {
         return mapHelper;
     }
 
+    /**
+     * Initialize the map helper
+     * @param activity the activity
+     * @param map the mapview
+     */
     public void InitMapHelper(Activity activity, MapView map) {
         this.activity = activity;
         this.cacheManager = new CacheManager(map);
@@ -59,6 +64,9 @@ public class MapHelper {
         SaveSettings();
     }
 
+    /**
+     * Load the settings
+     */
     public void LoadSettings()
     {
         SharedPreferences prefManager = PreferenceManager.getDefaultSharedPreferences(activity);
@@ -66,6 +74,10 @@ public class MapHelper {
 
 
     }
+
+    /**
+     * Save the settings
+     */
     public void SaveSettings()
     {
         SharedPreferences.Editor e = PreferenceManager.getDefaultSharedPreferences(activity).edit();

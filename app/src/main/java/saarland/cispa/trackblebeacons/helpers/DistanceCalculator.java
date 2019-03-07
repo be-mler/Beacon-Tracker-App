@@ -2,10 +2,22 @@ package saarland.cispa.trackblebeacons.helpers;
 
 import org.osmdroid.util.BoundingBox;
 
+/**
+ * Calculate the distance between two coordinates
+ */
+
 public class DistanceCalculator {
 
     public static final int EARTH_RADIUS = 6378137;
 
+    /**
+     * Calculate the distance between two coordinated in meters
+     * @param longitude1 the longitude 1
+     * @param latitude1 the latitude 1
+     * @param longitude2 the longitude 2
+     * @param latitude2 the latitude 2
+     * @return the distance in m
+     */
     public static float distanceBetween(double longitude1, double latitude1, double longitude2, double latitude2) {
 
         double dLat = Math.toRadians(latitude2-latitude1);

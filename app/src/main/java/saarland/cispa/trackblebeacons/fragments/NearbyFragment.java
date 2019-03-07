@@ -31,6 +31,9 @@ import saarland.cispa.trackblebeacons.helpers.DistanceCalculator;
 
 import static androidx.core.content.ContextCompat.checkSelfPermission;
 
+/**
+ * Fragment for the nearby view. Very similar to Scan fragment
+ */
 public class NearbyFragment extends Fragment {
     private View rootView = null;
     private RecyclerView recyclerView;
@@ -119,6 +122,10 @@ public class NearbyFragment extends Fragment {
         bleTracker.getCispaConnection().addRemoteReceiver(receiver);
     }
 
+    /**
+     * Modifies the distance which we got from the server in relation to current gps position
+     * @param beacon the beacon from which we modify the distance
+     */
     private void modifyDistance(SimpleBeacon beacon) {
         float distance = -1;
         LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);

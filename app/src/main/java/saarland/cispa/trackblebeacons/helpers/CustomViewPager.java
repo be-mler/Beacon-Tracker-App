@@ -6,6 +6,9 @@ import android.view.MotionEvent;
 
 import androidx.viewpager.widget.ViewPager;
 
+/**
+ * Disable swiping between Scan, Map, Nearby
+ */
 public class CustomViewPager extends ViewPager {
 
     private boolean swipingEnabled;

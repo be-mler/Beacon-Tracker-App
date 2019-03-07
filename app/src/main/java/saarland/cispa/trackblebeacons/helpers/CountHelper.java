@@ -4,6 +4,7 @@ import java.util.Locale;
 
 /**
  * Created by bridou_n on 01/10/2016.
+ * Shrinks the size of values by 1000 and adds the postfix k and so on
  */
 
 public class CountHelper {

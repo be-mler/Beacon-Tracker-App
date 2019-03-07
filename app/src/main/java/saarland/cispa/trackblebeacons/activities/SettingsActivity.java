@@ -7,6 +7,10 @@ import saarland.cispa.trackblebeacons.R;
 import saarland.cispa.trackblebeacons.fragments.SettingsFragment;
 import saarland.cispa.trackblebeacons.helpers.MapHelper;
 
+/**
+ * The Settings activity
+ * @see SettingsFragment SettingsFragment
+ */
 public class SettingsActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {

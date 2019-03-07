@@ -14,6 +14,10 @@ import saarland.cispa.trackblebeacons.Preferences;
 import saarland.cispa.trackblebeacons.R;
 import saarland.cispa.trackblebeacons.helpers.MapHelper;
 
+/**
+ * Fragment for the settings. Stores the settings in a shared preference file
+ */
+
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override

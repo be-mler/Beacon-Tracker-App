@@ -5,14 +5,26 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
+/**
+ * Helper for converting drawable to Bitmaps
+ */
+
 public class DrawableConverter {
 
-    Context context;
+    private Context context;
 
     public DrawableConverter(Context context) {
         this.context = context;
     }
 
+
+    /**
+     * Convert a drawable to a bitmap
+     * @param drawable the drawable
+     * @param widthDP the width
+     * @param heightDP the height
+     * @return the converted Bitmap
+     */
     public Bitmap toBitmap(Drawable drawable, int widthDP, int heightDP) {
         Bitmap mutableBitmap = Bitmap.createBitmap(convertDpToPx(widthDP), convertDpToPx(heightDP), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(mutableBitmap);
@@ -22,6 +34,11 @@ public class DrawableConverter {
         return mutableBitmap;
     }
 
+    /**
+     * Convert dp to pixel
+     * @param dp the dp
+     * @return the corresponding pixels
+     */
     public int convertDpToPx(float dp) {
         return (int) (dp * context.getResources().getDisplayMetrics().density);
     }

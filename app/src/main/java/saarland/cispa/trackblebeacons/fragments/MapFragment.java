@@ -43,6 +43,9 @@ import saarland.cispa.bletrackerlib.remote.RemoteRequestReceiver;
 import saarland.cispa.trackblebeacons.R;
 import saarland.cispa.trackblebeacons.helpers.MapHelper;
 
+/**
+ * The map fragment
+ */
 public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemGestureListener {
 
     private MapView map = null;

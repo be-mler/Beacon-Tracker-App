@@ -21,6 +21,9 @@ import saarland.cispa.bletrackerlib.service.BeaconNotifier;
 import saarland.cispa.trackblebeacons.activities.BeaconRecyclerViewAdapter;
 import saarland.cispa.trackblebeacons.R;
 
+/**
+ * Fragment for the scan view
+ */
 public class ScanFragment extends Fragment {
 
     private View rootView = null;

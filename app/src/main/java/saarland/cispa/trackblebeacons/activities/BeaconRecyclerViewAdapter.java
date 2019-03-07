@@ -31,7 +31,9 @@ import static saarland.cispa.bletrackerlib.data.SimpleBeaconLayouts.EDDYSTONE_UR
 import static saarland.cispa.bletrackerlib.data.SimpleBeaconLayouts.IBEACON_LAYOUT;
 import static saarland.cispa.bletrackerlib.data.SimpleBeaconLayouts.RUUVI_LAYOUT;
 
-
+/**
+ * Displays the beacons in Nearby and Scan view based on the data in the correct tile
+ */
 public class BeaconRecyclerViewAdapter extends ListAdapter<SimpleBeacon, BeaconRecyclerViewAdapter.BaseHolder> {
 
     private OnControlsOpen onControlsOpen;

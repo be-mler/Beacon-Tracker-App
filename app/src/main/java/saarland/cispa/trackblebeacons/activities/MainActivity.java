@@ -28,10 +28,10 @@ import androidx.core.app.NotificationManagerCompat;
 import saarland.cispa.bletrackerlib.BleTracker;
 import saarland.cispa.bletrackerlib.BleTrackerPreferences;
 import saarland.cispa.bletrackerlib.ServiceNotifier;
-import saarland.cispa.bletrackerlib.exceptions.OtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.data.SimpleBeacon;
-import saarland.cispa.bletrackerlib.service.BeaconNotifier;
+import saarland.cispa.bletrackerlib.exceptions.BleOtherServiceStillRunningException;
 import saarland.cispa.bletrackerlib.helper.ForegroundNotification;
+import saarland.cispa.bletrackerlib.service.BeaconNotifier;
 import saarland.cispa.trackblebeacons.Preferences;
 import saarland.cispa.trackblebeacons.R;
 import saarland.cispa.trackblebeacons.helpers.CustomViewPager;
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                     Notification notification = ForegroundNotification.create(MainActivity.this.getApplicationContext(), R.drawable.ic_stat_name, MainActivity.class);
                     try {
                         bleTracker.createForegroundService(notification);
-                    } catch (OtherServiceStillRunningException e) {
+                    } catch (BleOtherServiceStillRunningException e) {
                         e.printStackTrace();
                     }
                     bleTracker.start(MainActivity.this);

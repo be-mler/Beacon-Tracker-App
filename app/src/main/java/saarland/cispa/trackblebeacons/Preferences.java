@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+/**
+ * Here the app preferences get stored
+ */
+
 public class Preferences {
 
     private static boolean showBeaconNotifications = true;
