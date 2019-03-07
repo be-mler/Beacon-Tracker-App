@@ -37,6 +37,9 @@ For more details take a look at our [Java Doc](https://be-mler.github.io/Beacon-
 - **OSMdroid** (for the map)
 - **App Intro** (for the introduction at first start)
 
+## Credits ##
+- [Android Beacon Scanner](https://github.com/Bridouille/android-beacon-scanner) form where we have adopted the scan and nearby beacon layout.
+
 ## License ##
 	Copyright 2019 Max Bäumler, Tobias Faber
 	Licensed under the Apache License, Version 2.0 (the "License");
