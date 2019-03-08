@@ -20,6 +20,9 @@ public class Preferences {
         Preferences.showBeaconNotifications = showBeaconNotifications;
     }
 
+    /**
+     * Load app global preferences
+     */
     public static void load(Context context)
     {
         SharedPreferences prefManager = PreferenceManager.getDefaultSharedPreferences(context);
@@ -27,6 +30,9 @@ public class Preferences {
         //minConfirmations = prefManager.getInt("minConfirmations", 1);
 
     }
+    /**
+     * store app global preferences
+     */
     public static void save(Context context)
     {
         SharedPreferences.Editor e = PreferenceManager.getDefaultSharedPreferences(context).edit();

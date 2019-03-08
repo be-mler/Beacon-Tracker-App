@@ -32,6 +32,10 @@ public class ScanFragment extends Fragment {
     private BleTracker bleTracker;
 
 
+    /**
+     * Setting up the recycler view: Setting source list and components
+
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -70,6 +74,9 @@ public class ScanFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * Adding listener to the BleTracker and update the list in case of changes reported by the lib.
+     */
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

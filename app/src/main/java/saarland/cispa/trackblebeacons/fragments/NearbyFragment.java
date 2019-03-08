@@ -93,6 +93,9 @@ public class NearbyFragment extends Fragment {
         rootView.findViewById(R.id.beacons_nearby_rv).setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
+    /**
+     * Add RemoteReceiver which gets the incoming beacon data and adds them to the list and calculates the distance to that beacon
+     */
 
     private void initRemoteReceiver()
     {

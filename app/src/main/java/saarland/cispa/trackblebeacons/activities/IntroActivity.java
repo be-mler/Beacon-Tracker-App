@@ -18,6 +18,13 @@ import saarland.cispa.trackblebeacons.R;
  * Shows a nice Welcome Screen at first app start
  */
 public class IntroActivity extends AppIntro {
+
+    /**
+     * Showing the introduction slides that explain the permission usage of the app
+     *
+     */
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +77,10 @@ public class IntroActivity extends AppIntro {
         showSkipButton(false);
 
     }
+
+    /**
+     * When the Introduction page has been shown until the end it won't show again.
+     */
 
     @Override
     public void onDonePressed(Fragment fragment) {

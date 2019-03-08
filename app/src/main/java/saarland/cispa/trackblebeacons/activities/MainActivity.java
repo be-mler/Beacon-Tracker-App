@@ -49,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
     private PagerAdapter pagerAdapter;
     private CustomViewPager viewPager;
 
+    /**
+     * Method to show the intro slides ( only appears when it hasn't shown before)
+     */
+
     private void showIntroAtFirstStart() {
         //  Declare a new thread to do a preference check
         Thread t = new Thread(new Runnable() {
@@ -78,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
         // Start the thread
         t.start();
     }
+
+    /**
+     * On creation of the activity do some layout stuff and initialize the components.
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +117,10 @@ public class MainActivity extends AppCompatActivity {
         initTracker();
     }
 
+
+    /**
+     * Initializing the Tracker Lib and Beacon scanning
+     */
 
     private void initTracker() {
         final FloatingActionButton fab = findViewById(R.id.fab);
@@ -214,6 +226,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Sending Notification to the User if enabled
+     */
+
     private void sendNotification() {
         if(!Preferences.isShowBeaconNotifications())
             return;
@@ -236,6 +252,11 @@ public class MainActivity extends AppCompatActivity {
         int notificationId = 0;
         notificationManager.notify(notificationId, mBuilder.build());
     }
+
+    /**
+     * Setting up the channel for usernotifications
+     *
+     */
 
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because

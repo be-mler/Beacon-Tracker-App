@@ -13,6 +13,10 @@ import saarland.cispa.trackblebeacons.helpers.MapHelper;
  */
 public class SettingsActivity extends AppCompatActivity {
 
+    /**
+     * Setup the pagelayout and use the Fragment as main content
+     */
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_settings);

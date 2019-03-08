@@ -85,6 +85,10 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
         initMap();
     }
 
+    /**
+     * Initialize the map, setting options, adding the follow button...
+     */
+
     private void initMap()
     {
 
@@ -188,6 +192,11 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
 
     }
 
+    /**
+     * Adding a Beacon as Overlay to the map if its not on the map yet
+     * @param beacon
+     */
+
 
     private void addBeaconToOverlay(SimpleBeacon beacon)
     {
@@ -202,6 +211,10 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
         }
 
     }
+
+    /**
+     * Add RemoteReceiver which gets the incoming beacon data and calls the function to add them on the map
+     */
 
     private void initRemoteReceiver()
     {
@@ -227,6 +240,9 @@ public class MapFragment extends Fragment implements ItemizedIconOverlay.OnItemG
     }
 
 
+    /**
+     * Load beacons in the range of the map that is currently shown. To prevent accidental flooding do not allow simultaneous requests
+     */
 
     private void loadBeacons()
     {

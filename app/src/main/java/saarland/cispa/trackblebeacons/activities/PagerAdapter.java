@@ -21,6 +21,11 @@ public class PagerAdapter extends FragmentPagerAdapter {
 
     }
 
+    /**
+     * Getting the right Fragment depending on the tab position
+
+     */
+
     @Override
     public Fragment getItem(int position) {
 

@@ -20,6 +20,9 @@ import saarland.cispa.trackblebeacons.helpers.MapHelper;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
+    /**
+     * Assign settings buttons to their functions and initiate them with the saved values
+     */
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
@@ -81,6 +84,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     }
 
+    /**
+     * Send email intent
+     */
     public void composeEmail(String[] addresses, String subject) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:")); // only email apps should handle this
