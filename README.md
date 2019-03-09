@@ -40,6 +40,10 @@ For more details take a look at our [Java Doc](https://be-mler.github.io/Beacon-
 ## Credits ##
 - [Android Beacon Scanner](https://github.com/Bridouille/android-beacon-scanner) form where we have adopted the scan and nearby beacon layout.
 
+## Todo before release ##
+- Map tile rendering is currently done at OSM server but this is not allowed for apps which are released to public. The reason behind that is that this causes heavy workload at their servers. This violates the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/).
+Therefore we have to [set up a own server](https://switch2osm.org/serving-tiles/) for providing the tiles.
+
 ## License ##
 	Copyright 2019 Max Bäumler, Tobias Faber
 	Licensed under the Apache License, Version 2.0 (the "License");
